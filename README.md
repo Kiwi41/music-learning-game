@@ -9,6 +9,9 @@ Un jeu éducatif interactif développé avec Pygame pour apprendre à reconnaît
   - Clé de Sol uniquement
   - Clé de Fa uniquement
   - Mode mixte (alternance aléatoire)
+- **Sons réels des notes** : Génération synthétique des fréquences musicales (Do = 261.63 Hz, etc.)
+- **Contrôle du son** : Activer/désactiver à tout moment avec la touche M
+- **Navigation fluide** : ESC retourne au menu depuis le jeu, quitte depuis le menu
 - **Système de niveaux progressifs** : La difficulté augmente au fur et à mesure
 - **Interaction multiple** : Cliquez sur les boutons ou utilisez les touches 1-7
 - **Retour visuel immédiat** avec messages de feedback colorés
@@ -19,6 +22,7 @@ Un jeu éducatif interactif développé avec Pygame pour apprendre à reconnaît
 
 - Python 3.7+
 - Pygame
+- NumPy
 
 ## 🚀 Installation
 
@@ -30,7 +34,7 @@ cd music-learning-game
 
 2. Installez les dépendances :
 ```bash
-pip install pygame
+pip install pygame numpy
 ```
 
 ## 🎯 Comment jouer
@@ -44,10 +48,11 @@ python music_game.py
    - Cliquez sur un bouton ou appuyez sur 1, 2 ou 3
 
 3. **Pendant le jeu** :
-   - Une note apparaît sur la portée musicale
+   - Une note apparaît sur la portée musicale et son son est joué automatiquement
    - Identifiez-la en cliquant sur le bouton correspondant ou en utilisant les touches 1-7
    - Les 7 notes : Do (1), Ré (2), Mi (3), Fa (4), Sol (5), La (6), Si (7)
    - Répondez avant que le temps ne s'écoule !
+   - Appuyez sur M pour activer/désactiver le son
 
 4. **Progression** :
    - +10 points × niveau pour chaque bonne réponse
@@ -59,7 +64,8 @@ python music_game.py
 
 - **Touches 1-7** : Sélectionner une note
 - **Clic souris** : Cliquer sur les boutons
-- **ESC** : Quitter le jeu
+- **M** : Activer/Désactiver le son
+- **ESC** : Retour au menu (depuis le jeu) ou quitter (depuis le menu)
 
 ## 🎨 Captures d'écran
 
@@ -70,11 +76,13 @@ Le jeu affiche :
 - Un système de score et niveau
 - Une barre de progression temporelle
 - Des boutons interactifs avec effet de survol
+- Un indicateur visuel de l'état du son (ON/OFF)
 
 ## 🛠️ Technologies utilisées
 
 - **Python 3** : Langage de programmation
 - **Pygame** : Bibliothèque de jeu 2D
+- **NumPy** : Génération synthétique des sons
 
 ## 📝 Licence
 
