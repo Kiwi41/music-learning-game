@@ -1,9 +1,11 @@
 import pygame
 import random
 import sys
+import numpy as np
 
 # Initialisation de pygame
 pygame.init()
+pygame.mixer.init(frequency=22050, size=-16, channels=1, buffer=512)
 
 # Constantes
 LARGEUR = 800
@@ -31,6 +33,50 @@ police_petite = pygame.font.Font(None, 36)
 # Notes musicales
 NOTES = ['Do', 'Ré', 'Mi', 'Fa', 'Sol', 'La', 'Si']
 TOUCHES = [pygame.K_1, pygame.K_2, pygame.K_3, pygame.K_4, pygame.K_5, pygame.K_6, pygame.K_7]
+
+# Fréquences des notes (en Hz) - octave 4
+FREQUENCIES = {
+    'Do': 261.63,   # C4
+    'Ré': 293.66,   # D4
+    'Mi': 329.63,   # E4
+    'Fa': 349.23,   # F4
+    'Sol': 392.00,  # G4
+    'La': 440.00,   # A4
+    'Si': 493.88,   # B4
+}
+
+def generer_son(frequence, duree=0.5):
+    """Génère un son à partir d'une fréquence donnée"""
+    sample_rate = 22050
+    n_samples = int(sample_rate * duree)
+    
+    # Générer une onde sinusoïdale
+    t = np.linspace(0, duree, n_samples, False)
+    note = np.sin(frequence * t * 2 * np.pi)
+    
+    # Appliquer une enveloppe ADSR simplifiée pour adoucir le son
+    attack = int(0.01 * sample_rate)  # 10ms
+    decay = int(0.1 * sample_rate)    # 100ms
+    release = int(0.1 * sample_rate)  # 100ms
+    
+    for i in range(attack):
+        note[i] *= i / attack
+    for i in range(release):
+        note[-(i+1)] *= i / release
+    
+    # Normaliser et convertir en 16-bit
+    note = note * (2**15 - 1) / np.max(np.abs(note))
+    note = note.astype(np.int16)
+    
+    # Convertir en stéréo (dupliquer le canal)
+    stereo_note = np.column_stack((note, note))
+    
+    # Créer un objet Sound
+    sound = pygame.sndarray.make_sound(stereo_note)
+    return sound
+
+# Pré-générer tous les sons des notes
+SONS_NOTES = {nom: generer_son(freq) for nom, freq in FREQUENCIES.items()}
 
 # Positions des notes sur la portée en clé de SOL (y coordinate)
 POSITIONS_NOTES_SOL = {
@@ -107,6 +153,7 @@ class Jeu:
         self.message = ""
         self.couleur_message = NOIR
         self.temps_message = 0
+        self.son_active = True  # Son activé par défaut
         self.boutons = self.creer_boutons()
         self.nouvelle_note()
     
@@ -137,6 +184,10 @@ class Jeu:
         nom_note = random.choice(NOTES)
         self.note_actuelle = Note(nom_note, self.cle_actuelle)
         self.temps_reponse = pygame.time.get_ticks()
+        
+        # Jouer le son de la note si le son est activé
+        if self.son_active:
+            SONS_NOTES[nom_note].play()
         
     def dessiner_portee(self, surface):
         """Dessine la portée musicale"""
@@ -244,9 +295,15 @@ class Jeu:
             texte_msg = police_moyenne.render(self.message, True, self.couleur_message)
             surface.blit(texte_msg, (LARGEUR // 2 - texte_msg.get_width() // 2, 520))
         
-        # Instructions ESC
-        texte_esc = police_petite.render("ESC pour quitter", True, NOIR)
+        # Instructions ESC et son
+        texte_esc = police_petite.render("ESC pour retour au menu", True, NOIR)
         surface.blit(texte_esc, (10, HAUTEUR - 40))
+        
+        # Indicateur de son
+        etat_son = "ON" if self.son_active else "OFF"
+        couleur_son = VERT if self.son_active else ROUGE
+        texte_son = police_petite.render(f"Son: {etat_son} (M)", True, couleur_son)
+        surface.blit(texte_son, (LARGEUR - texte_son.get_width() - 10, HAUTEUR - 40))
 
 def ecran_accueil():
     """Affiche l'écran d'accueil avec sélection de clé"""
@@ -266,8 +323,7 @@ def ecran_accueil():
         
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                pygame.quit()
-                sys.exit()
+                return None  # Retourner None pour quitter
             
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if event.button == 1:
@@ -284,8 +340,7 @@ def ecran_accueil():
             
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
-                    pygame.quit()
-                    sys.exit()
+                    return None  # Retourner None pour quitter
                 elif event.key == pygame.K_1:
                     mode_choisi = 'sol'
                     en_attente = False
@@ -323,15 +378,20 @@ def ecran_accueil():
         texte_info = police_petite.render("Cliquez ou appuyez sur 1, 2 ou 3", True, NOIR)
         fenetre.blit(texte_info, (LARGEUR // 2 - texte_info.get_width() // 2, 520))
         
+        # Instruction ESC
+        texte_esc = police_petite.render("ESC pour quitter", True, NOIR)
+        fenetre.blit(texte_esc, (10, HAUTEUR - 40))
+        
         pygame.display.flip()
         horloge.tick(FPS)
     
     return mode_choisi
 
-def boucle_principale(mode_cle='mixte'):
-    """Boucle principale du jeu"""
+def boucle_jeu(mode_cle='mixte'):
+    """Boucle de jeu"""
     jeu = Jeu(mode_cle)
     en_cours = True
+    retour_menu = False
     
     while en_cours:
         # Gérer le survol des boutons
@@ -341,11 +401,13 @@ def boucle_principale(mode_cle='mixte'):
         
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                en_cours = False
+                return False  # Quitter l'application
             
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
-                    en_cours = False
+                    return True  # Retour au menu
+                elif event.key == pygame.K_m:
+                    jeu.son_active = not jeu.son_active  # Toggle le son
                 
                 # Vérifier si une touche de note est pressée
                 for i, touche in enumerate(TOUCHES):
@@ -374,10 +436,24 @@ def boucle_principale(mode_cle='mixte'):
         pygame.display.flip()
         horloge.tick(FPS)
     
+    return False
+
+def boucle_principale():
+    """Boucle principale avec menu"""
+    continuer = True
+    
+    while continuer:
+        mode = ecran_accueil()
+        if mode is None:
+            # L'utilisateur a quitté depuis le menu
+            continuer = False
+        else:
+            # Lancer le jeu et vérifier si on doit continuer
+            continuer = boucle_jeu(mode)
+    
     pygame.quit()
     sys.exit()
 
 # Lancement du jeu
 if __name__ == "__main__":
-    mode = ecran_accueil()
-    boucle_principale(mode)
+    boucle_principale()
