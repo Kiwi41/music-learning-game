@@ -207,19 +207,21 @@ class Jeu:
         
         # Dessiner la clé selon le type avec la police musicale
         if self.cle_actuelle == 'sol':
-            # Clé de Sol: 𝄞 (U+1D11E)
+            # Clé de Sol: 𝄞 (U+1D11E) - s'enroule autour de la ligne du Sol (2ème ligne du bas)
             texte_cle = police_musicale.render("\U0001D11E", True, NOIR)
-            surface.blit(texte_cle, (210, 270))
+            # Ajuster pour que la spirale centrale soit sur la ligne du Sol (y=335)
+            surface.blit(texte_cle, (215, 170))
             # Étiquette texte
             texte_nom = police_moyenne.render("Sol", True, BLEU)
-            surface.blit(texte_nom, (210, 230))
+            surface.blit(texte_nom, (210, 140))
         else:
-            # Clé de Fa: 𝄢 (U+1D122)
+            # Clé de Fa: 𝄢 (U+1D122) - les deux points encadrent la ligne du Fa (4ème ligne)
             texte_cle = police_musicale.render("\U0001D122", True, NOIR)
-            surface.blit(texte_cle, (210, 290))
+            # Ajuster pour que les points soient autour de la ligne du Fa (y=305)
+            surface.blit(texte_cle, (215, 165))
             # Étiquette texte
             texte_nom = police_moyenne.render("Fa", True, BLEU)
-            surface.blit(texte_nom, (210, 230))
+            surface.blit(texte_nom, (210, 140))
         
     def verifier_reponse(self, index_note):
         """Vérifie si la réponse est correcte"""
