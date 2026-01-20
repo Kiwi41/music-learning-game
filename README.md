@@ -55,9 +55,19 @@ pip install pygame numpy
 
 ## 🔨 Compiler l'exécutable (optionnel)
 
-Si vous souhaitez créer votre propre exécutable :
+### Build automatique via GitHub Actions ⭐
 
-### Sur Linux/macOS :
+**Les exécutables sont buildés automatiquement !** À chaque tag `v*.*.*`, GitHub Actions crée automatiquement les 3 versions (Windows, Linux, macOS) et les publie dans les releases.
+
+Pour créer une nouvelle release avec builds automatiques :
+```bash
+git tag v1.0.1
+git push origin v1.0.1
+```
+
+### Build manuel (si nécessaire)
+
+#### Sur Linux/macOS :
 
 1. Installez PyInstaller :
 ```bash
@@ -71,7 +81,7 @@ pip install pyinstaller
 
 3. L'exécutable sera créé dans le dossier `dist/`
 
-### Sur Windows :
+#### Sur Windows :
 
 **Important** : Ne pas utiliser depuis WSL! Clonez le projet directement sur Windows (ex: `C:\Users\...\music-learning-game`)
 
