@@ -2,9 +2,12 @@
 
 Un jeu éducatif interactif développé avec Pygame pour apprendre à reconnaître les notes de musique sur une portée musicale.
 
+![Menu Principal](images/screenshot_menu.png)
+![Jeu en cours](images/screenshot_game.png)
+
 ## 🎮 Fonctionnalités
 
-- **Deux clés musicales** : Clé de Sol et Clé de Fa
+- **Deux clés musicales** : Clé de Sol et Clé de Fa avec symboles musicaux professionnels (police Bravura)
 - **Trois modes de jeu** :
   - Clé de Sol uniquement
   - Clé de Fa uniquement
@@ -17,11 +20,16 @@ Un jeu éducatif interactif développé avec Pygame pour apprendre à reconnaît
 - **Retour visuel immédiat** avec messages de feedback colorés
 - **Barre de temps dynamique** qui change de couleur selon l'urgence
 - **Score** qui évolue avec vos bonnes et mauvaises réponses
+- **Exécutables portables** pour Windows, Linux et macOS (aucune installation requise)
 
 ## 📋 Prérequis
 
+### Pour l'exécutable (recommandé)
+Aucun prérequis ! Les exécutables sont autonomes et incluent tout le nécessaire.
+
+### Pour l'installation depuis les sources
 - Python 3.7+
-- Pygame
+- Pygame 2.x
 - NumPy
 
 ## 🚀 Installation
@@ -146,20 +154,31 @@ python music_game.py
 
 ## 🎨 Captures d'écran
 
+### Menu Principal
+![Menu](images/screenshot_menu.png)
+
+Choisissez votre mode de jeu : Clé de Sol, Clé de Fa, ou Mode Mixte.
+
+### Jeu en cours
+![Gameplay](images/screenshot_game.png)
+
 Le jeu affiche :
-- Une portée musicale avec 5 lignes
-- La clé actuelle (Sol ou Fa) dessinée et étiquetée
+- Une portée musicale authentique avec 5 lignes
+- La clé actuelle (Sol 𝄞 ou Fa 𝄢) avec symboles musicaux professionnels
 - Les notes positionnées correctement sur la portée
-- Un système de score et niveau
+- Un système de score et niveau en temps réel
 - Une barre de progression temporelle
-- Des boutons interactifs avec effet de survol
+- Sept boutons interactifs avec effet de survol (Do, Ré, Mi, Fa, Sol, La, Si)
 - Un indicateur visuel de l'état du son (ON/OFF)
 
 ## 🛠️ Technologies utilisées
 
 - **Python 3** : Langage de programmation
 - **Pygame** : Bibliothèque de jeu 2D
-- **NumPy** : Génération synthétique des sons
+- **NumPy** : Génération synthétique des sons musicaux
+- **PyInstaller** : Création d'exécutables portables
+- **GitHub Actions** : Build automatique multi-plateforme (CI/CD)
+- **Police Bravura** : Symboles musicaux professionnels (Steinberg)
 
 ## 📝 Licence
 
