@@ -30,6 +30,13 @@ police_grande = pygame.font.Font(None, 72)
 police_moyenne = pygame.font.Font(None, 48)
 police_petite = pygame.font.Font(None, 36)
 
+# Police musicale pour les clés
+try:
+    police_musicale = pygame.font.Font("Bravura.otf", 80)
+except:
+    # Fallback si la police n'est pas trouvée
+    police_musicale = police_grande
+
 # Notes musicales
 NOTES = ['Do', 'Ré', 'Mi', 'Fa', 'Sol', 'La', 'Si']
 TOUCHES = [pygame.K_1, pygame.K_2, pygame.K_3, pygame.K_4, pygame.K_5, pygame.K_6, pygame.K_7]
@@ -198,23 +205,21 @@ class Jeu:
             y = y_debut + i * espacement
             pygame.draw.line(surface, NOIR, (200, y), (600, y), 2)
         
-        # Dessiner la clé selon le type
+        # Dessiner la clé selon le type avec la police musicale
         if self.cle_actuelle == 'sol':
-            # Clé de Sol (forme simplifiée)
-            pygame.draw.circle(surface, NOIR, (230, 320), 12, 3)
-            pygame.draw.arc(surface, NOIR, (218, 285, 24, 50), 0, 3.14, 3)
-            pygame.draw.line(surface, NOIR, (230, 270), (230, 345), 3)
+            # Clé de Sol: 𝄞 (U+1D11E)
+            texte_cle = police_musicale.render("\U0001D11E", True, NOIR)
+            surface.blit(texte_cle, (210, 270))
             # Étiquette texte
-            texte_cle = police_moyenne.render("Sol", True, BLEU)
-            surface.blit(texte_cle, (210, 240))
+            texte_nom = police_moyenne.render("Sol", True, BLEU)
+            surface.blit(texte_nom, (210, 230))
         else:
-            # Clé de Fa (forme simplifiée)
-            pygame.draw.arc(surface, NOIR, (210, 300, 30, 25), 0, 3.14, 3)
-            pygame.draw.circle(surface, NOIR, (245, 305), 3)
-            pygame.draw.circle(surface, NOIR, (245, 320), 3)
+            # Clé de Fa: 𝄢 (U+1D122)
+            texte_cle = police_musicale.render("\U0001D122", True, NOIR)
+            surface.blit(texte_cle, (210, 290))
             # Étiquette texte
-            texte_cle = police_moyenne.render("Fa", True, BLEU)
-            surface.blit(texte_cle, (210, 240))
+            texte_nom = police_moyenne.render("Fa", True, BLEU)
+            surface.blit(texte_nom, (210, 230))
         
     def verifier_reponse(self, index_note):
         """Vérifie si la réponse est correcte"""

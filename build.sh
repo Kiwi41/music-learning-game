@@ -12,7 +12,7 @@ pyinstaller --onefile \
     --windowed \
     --name "MusicLearningGame" \
     --icon=NONE \
-    --add-data ".:." \
+    --add-data "Bravura.otf:." \
     music_game.py
 
 echo "✅ Build terminé!"

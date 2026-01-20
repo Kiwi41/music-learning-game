@@ -9,7 +9,7 @@ if exist dist rmdir /s /q dist
 if exist *.spec del *.spec
 
 REM Créer l'exécutable avec PyInstaller
-pyinstaller --onefile --windowed --name "MusicLearningGame" music_game.py
+pyinstaller --onefile --windowed --name "MusicLearningGame" --add-data "Bravura.otf;." music_game.py
 
 echo Build terminé!
 echo L'exécutable se trouve dans le dossier 'dist/'

@@ -39,7 +39,7 @@ jobs:
 
     - name: Build executable
       run: |
-        pyinstaller --onefile --windowed --name MusicLearningGame music_game.py
+        pyinstaller --onefile --windowed --name MusicLearningGame --add-data "Bravura.otf${{ runner.os == 'Windows' && ';' || ':' }}." music_game.py
 
     - name: Rename artifact (Unix)
       if: runner.os != 'Windows'
