@@ -1,6 +1,7 @@
 import pygame
 import random
 import sys
+import os
 import numpy as np
 
 # Initialisation de pygame
@@ -32,9 +33,19 @@ police_petite = pygame.font.Font(None, 36)
 
 # Police musicale pour les clés
 try:
-    police_musicale = pygame.font.Font("Bravura.otf", 80)
-except:
+    # Fonction pour obtenir le chemin des ressources (pour PyInstaller)
+    def resource_path(relative_path):
+        try:
+            # PyInstaller crée un dossier temporaire et stocke le chemin dans _MEIPASS
+            base_path = sys._MEIPASS
+        except Exception:
+            base_path = os.path.abspath(".")
+        return os.path.join(base_path, relative_path)
+    
+    police_musicale = pygame.font.Font(resource_path("Bravura.otf"), 80)
+except Exception as e:
     # Fallback si la police n'est pas trouvée
+    print(f"Avertissement: impossible de charger la police Bravura.otf - {e}")
     police_musicale = police_grande
 
 # Notes musicales
