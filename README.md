@@ -53,16 +53,35 @@ pip install pygame numpy
 
 Si vous souhaitez créer votre propre exécutable :
 
+### Sur Linux/macOS :
+
 1. Installez PyInstaller :
 ```bash
 pip install pyinstaller
 ```
 
 2. Lancez le script de build :
-   - **Linux/macOS** : `./build.sh`
-   - **Windows** : `build.bat`
+```bash
+./build.sh
+```
 
 3. L'exécutable sera créé dans le dossier `dist/`
+
+### Sur Windows :
+
+**Important** : Ne pas utiliser depuis WSL! Clonez le projet directement sur Windows (ex: `C:\Users\...\music-learning-game`)
+
+1. Installez Python et les dépendances :
+```cmd
+pip install pygame numpy pyinstaller
+```
+
+2. Lancez le script de build :
+```cmd
+build.bat
+```
+
+3. L'exécutable `MusicLearningGame.exe` sera créé dans le dossier `dist\`
 
 ## 🎯 Comment jouer
 
