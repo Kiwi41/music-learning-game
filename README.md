@@ -26,6 +26,17 @@ Un jeu éducatif interactif développé avec Pygame pour apprendre à reconnaît
 
 ## 🚀 Installation
 
+### Option 1 : Télécharger l'exécutable (Recommandé)
+
+**Pas besoin d'installer Python !**
+
+1. Téléchargez l'exécutable correspondant à votre système depuis la section [Releases](https://github.com/Kiwi41/music-learning-game/releases)
+2. Lancez directement le fichier :
+   - **Linux** : `./MusicLearningGame`
+   - **Windows** : `MusicLearningGame.exe`
+
+### Option 2 : Installation depuis les sources
+
 1. Clonez le dépôt :
 ```bash
 git clone https://github.com/Kiwi41/music-learning-game.git
@@ -36,6 +47,21 @@ cd music-learning-game
 ```bash
 pip install pygame numpy
 ```
+
+## 🔨 Compiler l'exécutable (optionnel)
+
+Si vous souhaitez créer votre propre exécutable :
+
+1. Installez PyInstaller :
+```bash
+pip install pyinstaller
+```
+
+2. Lancez le script de build :
+   - **Linux/macOS** : `./build.sh`
+   - **Windows** : `build.bat`
+
+3. L'exécutable sera créé dans le dossier `dist/`
 
 ## 🎯 Comment jouer
 
