@@ -1,0 +1,84 @@
+name: Build and Release
+
+on:
+  push:
+    tags:
+      - 'v*'  # Déclenche sur les tags v1.0.0, v1.1.0, etc.
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        include:
+          - os: ubuntu-latest
+            artifact_name: MusicLearningGame-linux
+            output_name: MusicLearningGame
+          - os: windows-latest
+            artifact_name: MusicLearningGame-windows.exe
+            output_name: MusicLearningGame.exe
+          - os: macos-latest
+            artifact_name: MusicLearningGame-macos
+            output_name: MusicLearningGame
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.12'
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install pygame numpy pyinstaller
+
+    - name: Build executable
+      run: |
+        pyinstaller --onefile --windowed --name MusicLearningGame music_game.py
+
+    - name: Rename artifact (Unix)
+      if: runner.os != 'Windows'
+      run: |
+        mv dist/${{ matrix.output_name }} dist/${{ matrix.artifact_name }}
+
+    - name: Rename artifact (Windows)
+      if: runner.os == 'Windows'
+      run: |
+        move dist\${{ matrix.output_name }} dist\${{ matrix.artifact_name }}
+
+    - name: Upload artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: ${{ matrix.artifact_name }}
+        path: dist/${{ matrix.artifact_name }}
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Download all artifacts
+      uses: actions/download-artifact@v4
+      with:
+        path: dist
+
+    - name: Create Release
+      uses: softprops/action-gh-release@v1
+      with:
+        files: |
+          dist/MusicLearningGame-linux/MusicLearningGame-linux
+          dist/MusicLearningGame-windows.exe/MusicLearningGame-windows.exe
+          dist/MusicLearningGame-macos/MusicLearningGame-macos
+        generate_release_notes: true
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
