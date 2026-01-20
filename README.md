@@ -99,22 +99,39 @@ build.bat
 
 ## 🎯 Comment jouer
 
-1. Lancez le jeu :
+### Si vous avez téléchargé l'exécutable :
+
+- **Windows** : Double-cliquez sur `MusicLearningGame-windows.exe`
+- **Linux** : Ouvrez un terminal et lancez :
+  ```bash
+  chmod +x MusicLearningGame-linux
+  ./MusicLearningGame-linux
+  ```
+- **macOS** : Ouvrez un terminal et lancez :
+  ```bash
+  chmod +x MusicLearningGame-macos
+  ./MusicLearningGame-macos
+  ```
+
+### Si vous avez installé depuis les sources :
+
 ```bash
 python music_game.py
 ```
 
-2. **Menu principal** : Choisissez votre mode de jeu
+### Dans le jeu :
+
+1. **Menu principal** : Choisissez votre mode de jeu
    - Cliquez sur un bouton ou appuyez sur 1, 2 ou 3
 
-3. **Pendant le jeu** :
+2. **Pendant le jeu** :
    - Une note apparaît sur la portée musicale et son son est joué automatiquement
    - Identifiez-la en cliquant sur le bouton correspondant ou en utilisant les touches 1-7
    - Les 7 notes : Do (1), Ré (2), Mi (3), Fa (4), Sol (5), La (6), Si (7)
    - Répondez avant que le temps ne s'écoule !
    - Appuyez sur M pour activer/désactiver le son
 
-4. **Progression** :
+3. **Progression** :
    - +10 points × niveau pour chaque bonne réponse
    - -5 points pour chaque erreur ou temps écoulé
    - Le niveau augmente tous les 50 points
