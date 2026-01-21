@@ -154,6 +154,13 @@ class Note:
         self.rayon = 15
         
     def dessiner(self, surface):
+        # Dessiner une ligne additionnelle si la note est en dehors de la portée
+        # En clé de Sol: le Do (380) est sous la portée (qui va de 290 à 350)
+        # En clé de Fa: le Sol (380) est sous la portée
+        if self.y > 350:  # Note en dessous de la portée
+            # Ligne additionnelle
+            pygame.draw.line(surface, NOIR, (self.x - 25, self.y), (self.x + 25, self.y), 2)
+        
         # Dessiner la note
         pygame.draw.ellipse(surface, NOIR, (self.x - self.rayon, self.y - 8, self.rayon * 2, 16))
         # Dessiner la tige
@@ -329,10 +336,11 @@ def ecran_accueil():
     mode_choisi = None
     
     # Créer les boutons de sélection
-    bouton_sol = Bouton(200, 350, 150, 60, "Clé de Sol", 0)
-    bouton_fa = Bouton(400, 350, 150, 60, "Clé de Fa", 1)
-    bouton_mixte = Bouton(300, 430, 150, 60, "Les deux", 2)
-    boutons_menu = [bouton_sol, bouton_fa, bouton_mixte]
+    bouton_sol = Bouton(200, 300, 150, 60, "Clé de Sol", 0)
+    bouton_fa = Bouton(400, 300, 150, 60, "Clé de Fa", 1)
+    bouton_mixte = Bouton(300, 380, 150, 60, "Les deux", 2)
+    bouton_entrainement = Bouton(250, 460, 250, 60, "Entraînement", 3)
+    boutons_menu = [bouton_sol, bouton_fa, bouton_mixte, bouton_entrainement]
     
     while en_attente:
         pos_souris = pygame.mouse.get_pos()
@@ -355,6 +363,9 @@ def ecran_accueil():
                     elif bouton_mixte.verifier_clic(pos):
                         mode_choisi = 'mixte'
                         en_attente = False
+                    elif bouton_entrainement.verifier_clic(pos):
+                        mode_choisi = 'entrainement'
+                        en_attente = False
             
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
@@ -367,6 +378,9 @@ def ecran_accueil():
                     en_attente = False
                 elif event.key == pygame.K_3:
                     mode_choisi = 'mixte'
+                    en_attente = False
+                elif event.key == pygame.K_4:
+                    mode_choisi = 'entrainement'
                     en_attente = False
         
         fenetre.fill(BLANC)
@@ -393,8 +407,8 @@ def ecran_accueil():
             bouton.dessiner(fenetre)
         
         # Instructions clavier
-        texte_info = police_petite.render("Cliquez ou appuyez sur 1, 2 ou 3", True, NOIR)
-        fenetre.blit(texte_info, (LARGEUR // 2 - texte_info.get_width() // 2, 520))
+        texte_info = police_petite.render("Cliquez ou appuyez sur 1, 2, 3 ou 4", True, NOIR)
+        fenetre.blit(texte_info, (LARGEUR // 2 - texte_info.get_width() // 2, 540))
         
         # Instruction ESC
         texte_esc = police_petite.render("ESC pour quitter", True, NOIR)
@@ -456,6 +470,126 @@ def boucle_jeu(mode_cle='mixte'):
     
     return False
 
+def mode_entrainement():
+    """Mode entraînement: cliquez sur une note pour la voir et l'entendre"""
+    en_cours = True
+    note_affichee = None
+    cle_actuelle = 'sol'  # Commencer en clé de Sol
+    son_active = True
+    
+    # Créer les boutons pour les notes
+    boutons_notes = []
+    notes_list = ['Do', 'Ré', 'Mi', 'Fa', 'Sol', 'La', 'Si']
+    x_start = 50
+    for i, nom_note in enumerate(notes_list):
+        bouton = Bouton(x_start + i * 100, 450, 80, 50, nom_note, i)
+        boutons_notes.append(bouton)
+    
+    # Bouton pour changer de clé
+    bouton_changer_cle = Bouton(LARGEUR // 2 - 75, 520, 150, 40, "Changer clé", -1)
+    
+    while en_cours:
+        pos_souris = pygame.mouse.get_pos()
+        for bouton in boutons_notes:
+            bouton.verifier_survol(pos_souris)
+        bouton_changer_cle.verifier_survol(pos_souris)
+        
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                return False  # Quitter l'application
+            
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    return True  # Retour au menu
+                elif event.key == pygame.K_m:
+                    son_active = not son_active  # Toggle le son
+                
+                # Vérifier si une touche de note est pressée
+                for i, touche in enumerate(TOUCHES):
+                    if event.key == touche:
+                        nom_note = notes_list[i]
+                        note_affichee = Note(nom_note, cle_actuelle)
+                        if son_active:
+                            SONS_NOTES[nom_note].play()
+            
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if event.button == 1:  # Clic gauche
+                    pos = event.pos
+                    # Vérifier si un bouton de note a été cliqué
+                    for bouton in boutons_notes:
+                        if bouton.verifier_clic(pos):
+                            nom_note = bouton.texte
+                            note_affichee = Note(nom_note, cle_actuelle)
+                            if son_active:
+                                SONS_NOTES[nom_note].play()
+                    
+                    # Vérifier si le bouton changer clé a été cliqué
+                    if bouton_changer_cle.verifier_clic(pos):
+                        cle_actuelle = 'fa' if cle_actuelle == 'sol' else 'sol'
+                        # Recréer la note affichée avec la nouvelle clé
+                        if note_affichee:
+                            note_affichee = Note(note_affichee.nom, cle_actuelle)
+        
+        # Dessiner
+        fenetre.fill(BLANC)
+        
+        # Titre
+        titre = police_grande.render("Mode Entraînement", True, BLEU)
+        fenetre.blit(titre, (LARGEUR // 2 - titre.get_width() // 2, 30))
+        
+        # Sous-titre
+        sous_titre = police_moyenne.render(f"Clé de {cle_actuelle.capitalize()}", True, BLEU)
+        fenetre.blit(sous_titre, (LARGEUR // 2 - sous_titre.get_width() // 2, 100))
+        
+        # Instructions
+        instruction = police_petite.render("Cliquez sur une note pour la voir et l'entendre", True, NOIR)
+        fenetre.blit(instruction, (LARGEUR // 2 - instruction.get_width() // 2, 150))
+        
+        # Dessiner la portée
+        y_debut = 290
+        espacement = 15
+        for i in range(5):
+            y = y_debut + i * espacement
+            pygame.draw.line(fenetre, NOIR, (200, y), (600, y), 2)
+        
+        # Dessiner la clé
+        if cle_actuelle == 'sol':
+            texte_cle = police_musicale.render("\U0001D11E", True, NOIR)
+            fenetre.blit(texte_cle, (215, 170))
+            texte_nom = police_moyenne.render("Sol", True, BLEU)
+            fenetre.blit(texte_nom, (210, 140))
+        else:
+            texte_cle = police_musicale.render("\U0001D122", True, NOIR)
+            fenetre.blit(texte_cle, (215, 165))
+            texte_nom = police_moyenne.render("Fa", True, BLEU)
+            fenetre.blit(texte_nom, (210, 140))
+        
+        # Dessiner la note si une est affichée
+        if note_affichee:
+            note_affichee.dessiner(fenetre)
+        
+        # Dessiner les boutons de notes
+        for bouton in boutons_notes:
+            bouton.dessiner(fenetre)
+        
+        # Dessiner le bouton changer clé
+        bouton_changer_cle.dessiner(fenetre)
+        
+        # État du son
+        etat_son = "ON" if son_active else "OFF"
+        couleur_son = VERT if son_active else ROUGE
+        texte_son = police_petite.render(f"Son: {etat_son} (M)", True, couleur_son)
+        fenetre.blit(texte_son, (LARGEUR - texte_son.get_width() - 10, HAUTEUR - 40))
+        
+        # Instruction ESC
+        texte_esc = police_petite.render("ESC pour revenir au menu", True, NOIR)
+        fenetre.blit(texte_esc, (10, HAUTEUR - 40))
+        
+        pygame.display.flip()
+        horloge.tick(FPS)
+    
+    return False
+
 def boucle_principale():
     """Boucle principale avec menu"""
     continuer = True
@@ -465,6 +599,9 @@ def boucle_principale():
         if mode is None:
             # L'utilisateur a quitté depuis le menu
             continuer = False
+        elif mode == 'entrainement':
+            # Lancer le mode entraînement
+            continuer = mode_entrainement()
         else:
             # Lancer le jeu et vérifier si on doit continuer
             continuer = boucle_jeu(mode)
