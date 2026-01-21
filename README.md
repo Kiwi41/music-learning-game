@@ -4,6 +4,7 @@ Un jeu éducatif interactif développé avec Pygame pour apprendre à reconnaît
 
 ![Menu Principal](images/screenshot_menu.png)
 ![Jeu en cours](images/screenshot_game.png)
+![Mode Entraînement](images/screenshot_training.png)
 
 ## 🎮 Fonctionnalités
 
