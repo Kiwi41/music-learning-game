@@ -1,35 +1,58 @@
-import pygame
-import random
-import sys
-import os
-import numpy as np
+# ========================================
+# IMPORTS - Bibliothèques nécessaires
+# ========================================
+import pygame      # Bibliothèque pour créer des jeux 2D
+import random      # Pour générer des nombres aléatoires (choix des notes)
+import sys         # Pour accéder aux fonctions système
+import os          # Pour gérer les chemins de fichiers
+import numpy as np # Pour les calculs mathématiques (génération de sons)
 
-# Initialisation de pygame
-pygame.init()
+# ========================================
+# INITIALISATION DE PYGAME
+# ========================================
+pygame.init()  # Démarre tous les modules Pygame
+# Initialise le système audio :
+# - frequency=22050 : 22050 échantillons par seconde (qualité CD)
+# - size=-16 : audio 16 bits signé
+# - channels=1 : mono (une seule piste audio)
+# - buffer=512 : taille du tampon audio (plus petit = moins de latence)
 pygame.mixer.init(frequency=22050, size=-16, channels=1, buffer=512)
 
-# Constantes
-LARGEUR = 800
-HAUTEUR = 600
-FPS = 60
+# ========================================
+# CONSTANTES - Valeurs qui ne changent pas
+# ========================================
+# Dimensions de la fenêtre
+LARGEUR = 800  # Largeur en pixels
+HAUTEUR = 600  # Hauteur en pixels
+FPS = 60       # Images par seconde (fluidité de l'animation)
 
-# Couleurs
-BLANC = (255, 255, 255)
-NOIR = (0, 0, 0)
-VERT = (0, 200, 0)
-ROUGE = (200, 0, 0)
-BLEU = (50, 100, 200)
-JAUNE = (255, 215, 0)
+# Définition des couleurs en RGB (Rouge, Vert, Bleu)
+# Chaque composante va de 0 à 255
+BLANC = (255, 255, 255)  # Maximum de toutes les couleurs = blanc
+NOIR = (0, 0, 0)         # Absence de couleur = noir
+VERT = (0, 200, 0)       # Vert pour les messages de succès
+ROUGE = (200, 0, 0)      # Rouge pour les erreurs
+BLEU = (50, 100, 200)    # Bleu pour les titres et boutons
+JAUNE = (255, 215, 0)    # Jaune pour les avertissements
 
-# Configuration de la fenêtre
+# ========================================
+# CONFIGURATION DE LA FENÊTRE
+# ========================================
+# Crée la fenêtre de jeu avec les dimensions définies
 fenetre = pygame.display.set_mode((LARGEUR, HAUTEUR))
+# Définit le titre qui apparaît dans la barre de la fenêtre
 pygame.display.set_caption("Apprendre les Notes de Musique")
+# Crée une horloge pour contrôler le nombre d'images par seconde
 horloge = pygame.time.Clock()
 
-# Polices
-police_grande = pygame.font.Font(None, 72)
-police_moyenne = pygame.font.Font(None, 48)
-police_petite = pygame.font.Font(None, 36)
+# ========================================
+# POLICES DE CARACTÈRES
+# ========================================
+# Crée différentes tailles de police pour le texte
+# None = police par défaut de Pygame, le nombre = taille en pixels
+police_grande = pygame.font.Font(None, 72)  # Pour les titres
+police_moyenne = pygame.font.Font(None, 48) # Pour les sous-titres
+police_petite = pygame.font.Font(None, 36)  # Pour le texte normal
 
 # Police musicale pour les clés
 try:
@@ -48,102 +71,204 @@ except Exception as e:
     print(f"Avertissement: impossible de charger la police Bravura.otf - {e}")
     police_musicale = police_grande
 
-# Notes musicales
+# ========================================
+# NOTES MUSICALES
+# ========================================
+# Liste des 7 notes de la gamme
 NOTES = ['Do', 'Ré', 'Mi', 'Fa', 'Sol', 'La', 'Si']
+
+# Association des touches du clavier (1-7) avec les notes
+# pygame.K_1 = touche "1" du clavier, etc.
 TOUCHES = [pygame.K_1, pygame.K_2, pygame.K_3, pygame.K_4, pygame.K_5, pygame.K_6, pygame.K_7]
 
-# Fréquences des notes (en Hz) - octave 4
+# Fréquences des notes en Hertz (vibrations par seconde) - octave 4
+# Chaque note a une fréquence spécifique qui détermine sa hauteur
+# Par exemple, le La (A4) = 440 Hz est la note de référence internationale
 FREQUENCIES = {
-    'Do': 261.63,   # C4
+    'Do': 261.63,   # C4 - Note la plus grave de notre jeu
     'Ré': 293.66,   # D4
     'Mi': 329.63,   # E4
     'Fa': 349.23,   # F4
     'Sol': 392.00,  # G4
-    'La': 440.00,   # A4
-    'Si': 493.88,   # B4
+    'La': 440.00,   # A4 - Note de référence (diapason)
+    'Si': 493.88,   # B4 - Note la plus aiguë de notre jeu
 }
 
 def generer_son(frequence, duree=0.5):
-    """Génère un son à partir d'une fréquence donnée"""
-    sample_rate = 22050
-    n_samples = int(sample_rate * duree)
+    """
+    Génère un son musical à partir d'une fréquence donnée.
     
-    # Générer une onde sinusoïdale
+    Cette fonction crée une onde sonore synthétique qui ressemble
+    à une note de musique réelle.
+    
+    Paramètres:
+        frequence (float): La fréquence de la note en Hz (ex: 440 pour un La)
+        duree (float): La durée du son en secondes (par défaut 0.5s)
+    
+    Retourne:
+        pygame.mixer.Sound: Un objet son jouable par Pygame
+    """
+    # Nombre d'échantillons audio par seconde (qualité du son)
+    sample_rate = 22050
+    # Nombre total d'échantillons nécessaires pour la durée voulue
+    n_samples = int(sample_rate * duree)  # Ex: 22050 * 0.5 = 11025 échantillons
+    
+    # ÉTAPE 1: Créer l'onde sinusoïdale (la forme de base du son)
+    # np.linspace crée une liste de moments dans le temps de 0 à 'duree'
     t = np.linspace(0, duree, n_samples, False)
+    # np.sin crée une onde qui monte et descend (comme une vague)
+    # frequence * t * 2 * np.pi : formule mathématique pour créer le bon nombre de cycles
     note = np.sin(frequence * t * 2 * np.pi)
     
-    # Appliquer une enveloppe ADSR simplifiée pour adoucir le son
-    attack = int(0.01 * sample_rate)  # 10ms
-    decay = int(0.1 * sample_rate)    # 100ms
-    release = int(0.1 * sample_rate)  # 100ms
+    # ÉTAPE 2: Adoucir le son avec une enveloppe ADSR
+    # Sans ça, le son serait brutal (comme un bip électronique)
+    # Attack: montée progressive du volume au début
+    attack = int(0.01 * sample_rate)  # 10 millisecondes
+    # Release: descente progressive du volume à la fin
+    release = int(0.1 * sample_rate)  # 100 millisecondes
     
+    # Appliquer l'attack: le volume monte progressivement de 0 à 1
     for i in range(attack):
-        note[i] *= i / attack
+        note[i] *= i / attack  # Multiplie par un coefficient qui augmente
+    
+    # Appliquer le release: le volume descend progressivement de 1 à 0
     for i in range(release):
-        note[-(i+1)] *= i / release
+        note[-(i+1)] *= i / release  # -(i+1) = partir de la fin du tableau
     
-    # Normaliser et convertir en 16-bit
-    note = note * (2**15 - 1) / np.max(np.abs(note))
-    note = note.astype(np.int16)
+    # ÉTAPE 3: Normaliser (ajuster le volume) et convertir en format 16-bit
+    # Les cartes son utilisent des nombres entiers de -32768 à +32767
+    note = note * (2**15 - 1) / np.max(np.abs(note))  # Ajuste au maximum possible
+    note = note.astype(np.int16)  # Convertit en entiers 16-bit
     
-    # Convertir en stéréo (dupliquer le canal)
-    stereo_note = np.column_stack((note, note))
+    # ÉTAPE 4: Convertir en stéréo (canal gauche + canal droit)
+    # On duplique simplement le signal mono pour avoir le même son des deux côtés
+    stereo_note = np.column_stack((note, note))  # Colle deux colonnes identiques
     
-    # Créer un objet Sound
+    # ÉTAPE 5: Créer un objet Sound que Pygame peut jouer
     sound = pygame.sndarray.make_sound(stereo_note)
     return sound
 
-# Pré-générer tous les sons des notes
+# Pré-générer tous les sons des notes au démarrage du programme
+# Cela évite de recalculer les sons à chaque fois qu'on en a besoin
+# {nom: generer_son(freq) ...} = dictionnaire par compréhension
+# Pour chaque paire (nom, freq) dans FREQUENCIES, on crée un son
 SONS_NOTES = {nom: generer_son(freq) for nom, freq in FREQUENCIES.items()}
 
-# Positions des notes sur la portée en clé de SOL (y coordinate)
+# ========================================
+# POSITIONS DES NOTES SUR LA PORTÉE
+# ========================================
+# Ces valeurs définissent où dessiner chaque note (coordonnée Y)
+# Plus le nombre est grand, plus la note est basse à l'écran
+
+# Positions pour la clé de SOL (clé de Sol)
 POSITIONS_NOTES_SOL = {
-    'Do': 380,   # En dessous de la portée
-    'Ré': 365,
-    'Mi': 350,
-    'Fa': 335,
-    'Sol': 320,
-    'La': 305,
-    'Si': 290,
+    'Do': 380,   # En dessous de la portée (ligne additionnelle)
+    'Ré': 365,   # Juste en dessous de la portée
+    'Mi': 350,   # Sur la première ligne (du bas)
+    'Fa': 335,   # Entre la 1ère et 2ème ligne
+    'Sol': 320,  # Sur la 2ème ligne
+    'La': 305,   # Entre la 2ème et 3ème ligne
+    'Si': 290,   # Sur la 3ème ligne (en haut de la portée)
 }
 
-# Positions des notes sur la portée en clé de FA (y coordinate)
+# Positions pour la clé de FA (clé de Fa)
+# Les notes sont différemment placées en clé de Fa
 POSITIONS_NOTES_FA = {
-    'Sol': 380,  # En dessous de la portée
-    'La': 365,
-    'Si': 350,
-    'Do': 335,
-    'Ré': 320,
-    'Mi': 305,
-    'Fa': 290,
+    'Sol': 380,  # En dessous de la portée (ligne additionnelle)
+    'La': 365,   # Juste en dessous de la portée
+    'Si': 350,   # Sur la première ligne
+    'Do': 335,   # Entre la 1ère et 2ème ligne
+    'Ré': 320,   # Sur la 2ème ligne
+    'Mi': 305,   # Entre la 2ème et 3ème ligne
+    'Fa': 290,   # Sur la 3ème ligne
 }
 
+# ========================================
+# CLASSE BOUTON - Pour les boutons cliquables
+# ========================================
 class Bouton:
+    """
+    Représente un bouton cliquable à l'écran.
+    
+    Gère l'affichage, la détection de clic et l'effet de survol.
+    """
     def __init__(self, x, y, largeur, hauteur, texte, index):
+        """
+        Initialise un nouveau bouton.
+        
+        Paramètres:
+            x, y: Position du coin supérieur gauche du bouton
+            largeur, hauteur: Dimensions du bouton en pixels
+            texte: Le texte affiché sur le bouton
+            index: Un numéro pour identifier le bouton (0-6 pour les notes)
+        """
+        # pygame.Rect crée un rectangle pour détecter les clics
         self.rect = pygame.Rect(x, y, largeur, hauteur)
-        self.texte = texte
-        self.index = index
-        self.survole = False
+        self.texte = texte          # Le texte à afficher (ex: "Do", "Ré"...)
+        self.index = index          # L'identifiant du bouton
+        self.survole = False        # True si la souris est sur le bouton
         
     def dessiner(self, surface):
-        # Couleur du bouton selon si la souris survole
+        """
+        Dessine le bouton sur la surface donnée.
+        
+        Paramètre:
+            surface: La fenêtre Pygame où dessiner
+        """
+        # Choisir la couleur : bleu si survolé, gris sinon
         couleur = BLEU if self.survole else (150, 150, 150)
+        # Dessiner le rectangle rempli avec des coins arrondis
         pygame.draw.rect(surface, couleur, self.rect, border_radius=10)
+        # Dessiner le contour noir du bouton
         pygame.draw.rect(surface, NOIR, self.rect, 3, border_radius=10)
         
-        # Texte du bouton
+        # Afficher le texte au centre du bouton
+        # render() crée une image du texte, True = antialiasing (lissage)
         texte_surface = police_petite.render(self.texte, True, BLANC if self.survole else NOIR)
+        # Centrer le texte dans le rectangle du bouton
         texte_rect = texte_surface.get_rect(center=self.rect.center)
+        # blit() = coller l'image du texte sur la surface
         surface.blit(texte_surface, texte_rect)
         
     def verifier_clic(self, pos):
-        return self.rect.collidepoint(pos)
+        """
+        Vérifie si la position donnée est à l'intérieur du bouton.
+        
+        Paramètre:
+            pos: Tuple (x, y) de la position de la souris
+        
+        Retourne:
+            True si le clic est sur le bouton, False sinon
+        """
+        return self.rect.collidepoint(pos)  # Méthode de pygame.Rect
         
     def verifier_survol(self, pos):
+        """
+        Met à jour l'état de survol selon la position de la souris.
+        
+        Paramètre:
+            pos: Tuple (x, y) de la position de la souris
+        """
+        # Met self.survole à True si la souris est sur le bouton
         self.survole = self.rect.collidepoint(pos)
 
+# ========================================
+# CLASSE NOTE - Représente une note musicale
+# ========================================
 class Note:
+    """
+    Représente une note de musique affichée sur la portée.
+    
+    Gère la position et l'affichage d'une note selon la clé musicale.
+    """
     def __init__(self, nom, cle='sol'):
+        """
+        Crée une nouvelle note.
+        
+        Paramètres:
+            nom: Le nom de la note ('Do', 'Ré', 'Mi', etc.)
+            cle: La clé musicale ('sol' ou 'fa')
+        """
         self.nom = nom
         self.cle = cle
         self.x = LARGEUR // 2
