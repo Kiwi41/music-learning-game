@@ -8,18 +8,20 @@ Un jeu éducatif interactif développé avec Pygame pour apprendre à reconnaît
 ## 🎮 Fonctionnalités
 
 - **Deux clés musicales** : Clé de Sol et Clé de Fa avec symboles musicaux professionnels (police Bravura)
-- **Trois modes de jeu** :
+- **Quatre modes de jeu** :
   - Clé de Sol uniquement
   - Clé de Fa uniquement
   - Mode mixte (alternance aléatoire)
+  - **Mode entraînement** : Explorez les notes à votre rythme sans timer ni score
 - **Sons réels des notes** : Génération synthétique des fréquences musicales (Do = 261.63 Hz, etc.)
 - **Contrôle du son** : Activer/désactiver à tout moment avec la touche M
 - **Navigation fluide** : ESC retourne au menu depuis le jeu, quitte depuis le menu
-- **Système de niveaux progressifs** : La difficulté augmente au fur et à mesure
+- **Système de niveaux progressifs** : La difficulté augmente au fur et à mesure (modes jeu)
 - **Interaction multiple** : Cliquez sur les boutons ou utilisez les touches 1-7
 - **Retour visuel immédiat** avec messages de feedback colorés
-- **Barre de temps dynamique** qui change de couleur selon l'urgence
-- **Score** qui évolue avec vos bonnes et mauvaises réponses
+- **Barre de temps dynamique** qui change de couleur selon l'urgence (modes jeu)
+- **Score** qui évolue avec vos bonnes et mauvaises réponses (modes jeu)
+- **Notation musicale authentique** : Notes rondes, lignes additionnelles correctes, symboles professionnels
 - **Exécutables portables** pour Windows, Linux et macOS (aucune installation requise)
 
 ## 📋 Prérequis
@@ -129,17 +131,23 @@ python music_game.py
 
 ### Dans le jeu :
 
-1. **Menu principal** : Choisissez votre mode de jeu
-   - Cliquez sur un bouton ou appuyez sur 1, 2 ou 3
+1. **Menu principal** : Choisissez votre mode
+   - Cliquez sur un bouton ou appuyez sur 1, 2, 3 ou 4
 
-2. **Pendant le jeu** :
+2. **Mode Entraînement** :
+   - Cliquez sur une note (Do à Si) pour la voir positionnée sur la portée et l'entendre
+   - Bouton "Changer clé" pour basculer entre clé de Sol et clé de Fa
+   - Pas de timer, pas de score : apprenez à votre rythme
+   - Idéal pour se familiariser avec les positions des notes
+
+3. **Modes Jeu (Sol, Fa, Mixte)** :
    - Une note apparaît sur la portée musicale et son son est joué automatiquement
    - Identifiez-la en cliquant sur le bouton correspondant ou en utilisant les touches 1-7
    - Les 7 notes : Do (1), Ré (2), Mi (3), Fa (4), Sol (5), La (6), Si (7)
    - Répondez avant que le temps ne s'écoule !
    - Appuyez sur M pour activer/désactiver le son
 
-3. **Progression** :
+4. **Progression (modes jeu)** :
    - +10 points × niveau pour chaque bonne réponse
    - -5 points pour chaque erreur ou temps écoulé
    - Le niveau augmente tous les 50 points
@@ -147,17 +155,18 @@ python music_game.py
 
 ## ⌨️ Commandes
 
-- **Touches 1-7** : Sélectionner une note
+- **Touches 1-7** : Sélectionner une note (Do à Si)
+- **Touche 4** : Mode entraînement (depuis le menu)
 - **Clic souris** : Cliquer sur les boutons
 - **M** : Activer/Désactiver le son
-- **ESC** : Retour au menu (depuis le jeu) ou quitter (depuis le menu)
+- **ESC** : Retour au menu (depuis le jeu/entraînement) ou quitter (depuis le menu)
 
 ## 🎨 Captures d'écran
 
 ### Menu Principal
 ![Menu](images/screenshot_menu.png)
 
-Choisissez votre mode de jeu : Clé de Sol, Clé de Fa, ou Mode Mixte.
+Choisissez votre mode : Clé de Sol, Clé de Fa, Mode Mixte, ou Entraînement.
 
 ### Jeu en cours
 ![Gameplay](images/screenshot_game.png)
@@ -165,11 +174,12 @@ Choisissez votre mode de jeu : Clé de Sol, Clé de Fa, ou Mode Mixte.
 Le jeu affiche :
 - Une portée musicale authentique avec 5 lignes
 - La clé actuelle (Sol 𝄞 ou Fa 𝄢) avec symboles musicaux professionnels
-- Les notes positionnées correctement sur la portée
-- Un système de score et niveau en temps réel
-- Une barre de progression temporelle
+- Notes rondes parfaitement dessinées avec lignes additionnelles correctes
+- Un système de score et niveau en temps réel (modes jeu)
+- Une barre de progression temporelle (modes jeu)
 - Sept boutons interactifs avec effet de survol (Do, Ré, Mi, Fa, Sol, La, Si)
 - Un indicateur visuel de l'état du son (ON/OFF)
+- Mode entraînement : interface épurée pour explorer les notes librement
 
 ## 🛠️ Technologies utilisées
 

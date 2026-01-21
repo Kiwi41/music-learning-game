@@ -155,14 +155,15 @@ class Note:
         
     def dessiner(self, surface):
         # Dessiner une ligne additionnelle si la note est en dehors de la portée
-        # En clé de Sol: le Do (380) est sous la portée (qui va de 290 à 350)
-        # En clé de Fa: le Sol (380) est sous la portée
-        if self.y > 350:  # Note en dessous de la portée
+        # En clé de Sol: seul le Do (380) nécessite une ligne
+        # En clé de Fa: seul le Sol (380) nécessite une ligne
+        # Le Ré (365) en Sol et La (365) en Fa sont entre les lignes, pas de ligne additionnelle
+        if self.y >= 380:  # Note vraiment en dessous de la portée
             # Ligne additionnelle
             pygame.draw.line(surface, NOIR, (self.x - 25, self.y), (self.x + 25, self.y), 2)
         
-        # Dessiner la note
-        pygame.draw.ellipse(surface, NOIR, (self.x - self.rayon, self.y - 8, self.rayon * 2, 16))
+        # Dessiner la note (cercle parfait)
+        pygame.draw.circle(surface, NOIR, (self.x, self.y), self.rayon)
         # Dessiner la tige
         pygame.draw.line(surface, NOIR, (self.x + self.rayon, self.y), (self.x + self.rayon, self.y - 50), 3)
 
@@ -185,15 +186,15 @@ class Jeu:
     def creer_boutons(self):
         """Crée les boutons pour chaque note"""
         boutons = []
-        largeur_bouton = 90
+        largeur_bouton = 80
         hauteur_bouton = 50
-        x_debut = 100
-        y = 460
-        espacement = 95
+        x_debut = 50
+        y = 450
+        espacement = 100
         
         for i, note in enumerate(NOTES):
             x = x_debut + i * espacement
-            bouton = Bouton(x, y, largeur_bouton, hauteur_bouton, f"{i+1}. {note}", i)
+            bouton = Bouton(x, y, largeur_bouton, hauteur_bouton, note, i)
             boutons.append(bouton)
         
         return boutons
@@ -537,13 +538,13 @@ def mode_entrainement():
         titre = police_grande.render("Mode Entraînement", True, BLEU)
         fenetre.blit(titre, (LARGEUR // 2 - titre.get_width() // 2, 30))
         
-        # Sous-titre
+        # Sous-titre (nom de la clé)
         sous_titre = police_moyenne.render(f"Clé de {cle_actuelle.capitalize()}", True, BLEU)
-        fenetre.blit(sous_titre, (LARGEUR // 2 - sous_titre.get_width() // 2, 100))
+        fenetre.blit(sous_titre, (LARGEUR // 2 - sous_titre.get_width() // 2, 220))
         
         # Instructions
         instruction = police_petite.render("Cliquez sur une note pour la voir et l'entendre", True, NOIR)
-        fenetre.blit(instruction, (LARGEUR // 2 - instruction.get_width() // 2, 150))
+        fenetre.blit(instruction, (LARGEUR // 2 - instruction.get_width() // 2, 100))
         
         # Dessiner la portée
         y_debut = 290
