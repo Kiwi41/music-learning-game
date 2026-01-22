@@ -105,8 +105,6 @@ FREQUENCIES_FA = {
     'Mi': 164.81,   # E3 - Entre 2ème et 3ème ligne
     'Fa': 174.61,   # F3 - Le plus aigu, sur la 3ème ligne (en haut)
 }
-    'Fa': 174.61,   # F3 - Le plus aigu, en haut de la portée
-}
 
 def generer_son(frequence, duree=0.5):
     """
