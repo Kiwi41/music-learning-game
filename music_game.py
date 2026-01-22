@@ -287,14 +287,16 @@ class Note:
             # Ligne additionnelle
             pygame.draw.line(surface, NOIR, (self.x - 25, self.y), (self.x + 25, self.y), 2)
         
-        # Dessiner la note complète avec le caractère Bravura U+E1D3 (noteQuarterUp)
-        # C'est une noire complète (tête + tige) professionnelle
-        note_complete = police_musicale.render('\U0000E1D3', True, NOIR)
-        # Centrer la tête de note (la tige part vers le haut)
-        rect_note = note_complete.get_rect()
-        rect_note.centery = self.y
-        rect_note.centerx = self.x
-        surface.blit(note_complete, rect_note)
+        # Dessiner la tête de noire avec le caractère Bravura U+E0A4 (noteheadBlack)
+        # C'est une tête de noire (remplie) avec l'ovale parfaitement penché
+        tete_note = police_musicale.render('\U0000E0A4', True, NOIR)
+        rect_tete = tete_note.get_rect(center=(self.x, self.y))
+        surface.blit(tete_note, rect_tete)
+        
+        # Dessiner la tige à droite de la tête de note
+        # Calculer la position de départ de la tige (bord droit de la tête)
+        x_tige = self.x + 12  # Décalage pour coller au bord droit de l'ovale
+        pygame.draw.line(surface, NOIR, (x_tige, self.y), (x_tige, self.y - 50), 3)
 
 class Jeu:
     def __init__(self, mode_cle='mixte'):
