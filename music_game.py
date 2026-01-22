@@ -94,6 +94,17 @@ FREQUENCIES = {
     'Si': 493.88,   # B4 - Note la plus aiguë de notre jeu
 }
 
+# Fréquences pour la clé de Fa (octave plus grave - octave 3)
+FREQUENCIES_FA = {
+    'Do': 130.81,   # C3 - Une octave en dessous
+    'Ré': 146.83,   # D3
+    'Mi': 164.81,   # E3
+    'Fa': 174.61,   # F3
+    'Sol': 196.00,  # G3
+    'La': 220.00,   # A3
+    'Si': 246.94,   # B3
+}
+
 def generer_son(frequence, duree=0.5):
     """
     Génère un son musical à partir d'une fréquence donnée.
@@ -153,6 +164,7 @@ def generer_son(frequence, duree=0.5):
 # {nom: generer_son(freq) ...} = dictionnaire par compréhension
 # Pour chaque paire (nom, freq) dans FREQUENCIES, on crée un son
 SONS_NOTES = {nom: generer_son(freq) for nom, freq in FREQUENCIES.items()}
+SONS_NOTES_FA = {nom: generer_son(freq) for nom, freq in FREQUENCIES_FA.items()}
 
 # ========================================
 # POSITIONS DES NOTES SUR LA PORTÉE
@@ -341,7 +353,9 @@ class Jeu:
         
         # Jouer le son de la note si le son est activé
         if self.son_active:
-            SONS_NOTES[nom_note].play()
+            # Utiliser les sons de l'octave approprié selon la clé
+            sons = SONS_NOTES_FA if self.cle_actuelle == 'fa' else SONS_NOTES
+            sons[nom_note].play()
         
     def dessiner_portee(self, surface):
         """Dessine la portée musicale"""
@@ -639,7 +653,8 @@ def mode_entrainement():
                         nom_note = notes_list[i]
                         note_affichee = Note(nom_note, cle_actuelle)
                         if son_active:
-                            SONS_NOTES[nom_note].play()
+                            sons = SONS_NOTES_FA if cle_actuelle == 'fa' else SONS_NOTES
+                            sons[nom_note].play()
             
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if event.button == 1:  # Clic gauche
@@ -650,7 +665,8 @@ def mode_entrainement():
                             nom_note = bouton.texte
                             note_affichee = Note(nom_note, cle_actuelle)
                             if son_active:
-                                SONS_NOTES[nom_note].play()
+                                sons = SONS_NOTES_FA if cle_actuelle == 'fa' else SONS_NOTES
+                                sons[nom_note].play()
                     
                     # Vérifier si le bouton changer clé a été cliqué
                     if bouton_changer_cle.verifier_clic(pos):
