@@ -689,7 +689,7 @@ def mode_entrainement():
             fenetre.blit(texte_nom, (210, 140))
         else:
             texte_cle = police_musicale.render("\U0001D122", True, NOIR)
-            fenetre.blit(texte_cle, (215, 165))
+            fenetre.blit(texte_cle, (215, 145))
             texte_nom = police_moyenne.render("Fa", True, BLEU)
             fenetre.blit(texte_nom, (210, 140))
         
