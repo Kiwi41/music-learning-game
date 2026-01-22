@@ -84,7 +84,7 @@ TOUCHES = [pygame.K_1, pygame.K_2, pygame.K_3, pygame.K_4, pygame.K_5, pygame.K_
 # Fréquences des notes en Hertz (vibrations par seconde) - CLÉ DE SOL (octave 4)
 # Chaque note a une fréquence spécifique qui détermine sa hauteur
 # Par exemple, le La (A4) = 440 Hz est la note de référence internationale
-FREQUENCIES = {
+FREQUENCIES_SOL = {
     'Do': 261.63,   # C4 - Note la plus grave en clé de Sol
     'Ré': 293.66,   # D4
     'Mi': 329.63,   # E4
@@ -163,8 +163,8 @@ def generer_son(frequence, duree=0.5):
 # Pré-générer tous les sons des notes au démarrage du programme
 # Cela évite de recalculer les sons à chaque fois qu'on en a besoin
 # {nom: generer_son(freq) ...} = dictionnaire par compréhension
-# Pour chaque paire (nom, freq) dans FREQUENCIES, on crée un son
-SONS_NOTES = {nom: generer_son(freq) for nom, freq in FREQUENCIES.items()}
+# Pour chaque paire (nom, freq) dans FREQUENCIES_SOL et FREQUENCIES_FA, on crée un son
+SONS_NOTES_SOL = {nom: generer_son(freq) for nom, freq in FREQUENCIES_SOL.items()}
 SONS_NOTES_FA = {nom: generer_son(freq) for nom, freq in FREQUENCIES_FA.items()}
 
 # ========================================
@@ -355,7 +355,7 @@ class Jeu:
         # Jouer le son de la note si le son est activé
         if self.son_active:
             # Utiliser les sons de l'octave approprié selon la clé
-            sons = SONS_NOTES_FA if self.cle_actuelle == 'fa' else SONS_NOTES
+            sons = SONS_NOTES_FA if self.cle_actuelle == 'fa' else SONS_NOTES_SOL
             sons[nom_note].play()
         
     def dessiner_portee(self, surface):
@@ -654,7 +654,7 @@ def mode_entrainement():
                         nom_note = notes_list[i]
                         note_affichee = Note(nom_note, cle_actuelle)
                         if son_active:
-                            sons = SONS_NOTES_FA if cle_actuelle == 'fa' else SONS_NOTES
+                            sons = SONS_NOTES_FA if cle_actuelle == 'fa' else SONS_NOTES_SOL
                             sons[nom_note].play()
             
             if event.type == pygame.MOUSEBUTTONDOWN:
@@ -666,7 +666,7 @@ def mode_entrainement():
                             nom_note = bouton.texte
                             note_affichee = Note(nom_note, cle_actuelle)
                             if son_active:
-                                sons = SONS_NOTES_FA if cle_actuelle == 'fa' else SONS_NOTES
+                                sons = SONS_NOTES_FA if cle_actuelle == 'fa' else SONS_NOTES_SOL
                                 sons[nom_note].play()
                     
                     # Vérifier si le bouton changer clé a été cliqué
