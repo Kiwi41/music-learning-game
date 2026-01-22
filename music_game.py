@@ -94,15 +94,16 @@ FREQUENCIES = {
     'Si': 493.88,   # B4 - Note la plus aiguë de notre jeu
 }
 
-# Fréquences pour la clé de Fa (octave plus grave - octave 3)
+# Fréquences pour la clé de Fa (octave plus grave - octave 2 et 3)
+# En clé de Fa, les notes vont de Sol (grave, en dessous) à Fa (aigu, en haut)
 FREQUENCIES_FA = {
-    'Do': 130.81,   # C3 - Une octave en dessous
+    'Sol': 98.00,   # G2 - Le plus grave, en dessous de la portée
+    'La': 110.00,   # A2
+    'Si': 123.47,   # B2
+    'Do': 130.81,   # C3
     'Ré': 146.83,   # D3
     'Mi': 164.81,   # E3
-    'Fa': 174.61,   # F3
-    'Sol': 196.00,  # G3
-    'La': 220.00,   # A3
-    'Si': 246.94,   # B3
+    'Fa': 174.61,   # F3 - Le plus aigu, en haut de la portée
 }
 
 def generer_son(frequence, duree=0.5):
