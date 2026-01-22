@@ -364,8 +364,8 @@ class Jeu:
         else:
             # Clé de Fa: 𝄢 (U+1D122) - les deux points encadrent la ligne du Fa (4ème ligne)
             texte_cle = police_musicale.render("\U0001D122", True, NOIR)
-            # Ajuster pour que les points soient autour de la ligne du Fa (y=305)
-            surface.blit(texte_cle, (215, 165))
+            # Ajuster pour que les points soient autour de la ligne du Fa (y=320)
+            surface.blit(texte_cle, (215, 145))
             # Étiquette texte
             texte_nom = police_moyenne.render("Fa", True, BLEU)
             surface.blit(texte_nom, (210, 140))
