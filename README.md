@@ -8,23 +8,38 @@ Un jeu éducatif interactif développé avec Pygame pour apprendre à reconnaît
 
 ## 🎮 Fonctionnalités
 
+### Modes de Jeu
 - **Deux clés musicales** : Clé de Sol et Clé de Fa avec symboles musicaux professionnels (police Bravura)
 - **Quatre modes de jeu** :
   - Clé de Sol uniquement (octave 4)
   - Clé de Fa uniquement (octave 2-3, sons plus graves)
   - Mode mixte (alternance aléatoire)
   - **Mode entraînement** : Explorez les notes à votre rythme sans timer ni score
+
+### Engagement & Progression
+- **🏆 High Score persistant** : Votre meilleur score est sauvegardé automatiquement
+- **🔥 Système de combo** : Enchaînez les bonnes réponses pour des bonus (+2 points par niveau de combo)
+- **📊 Statistiques détaillées** :
+  - Nombre de sessions jouées
+  - Taux de réussite global
+  - Statistiques par note (tentatives, réussites, pourcentage)
+- **Système de niveaux progressifs** : La difficulté augmente au fur et à mesure (modes jeu)
+- **Sauvegarde portable** : Vos données sont stockées dans le même dossier que l'exécutable
+
+### Audio & Interactivité
 - **Sons réels des notes** : Génération synthétique avec fréquences authentiques
   - Clé de Sol : Do4 (261.63 Hz) à Si4 (493.88 Hz)
   - Clé de Fa : Sol2 (98 Hz) à Fa3 (174.61 Hz)
 - **Contrôle du son** : Activer/désactiver à tout moment avec la touche M
-- **Navigation fluide** : ESC retourne au menu depuis le jeu, quitte depuis le menu
-- **Système de niveaux progressifs** : La difficulté augmente au fur et à mesure (modes jeu)
 - **Interaction multiple** : Cliquez sur les boutons ou utilisez les touches 1-7
+
+### Interface & Visuel
+- **Navigation fluide** : ESC retourne au menu depuis le jeu, quitte depuis le menu
 - **Retour visuel immédiat** avec messages de feedback colorés
 - **Barre de temps dynamique** qui change de couleur selon l'urgence (modes jeu)
-- **Score** qui évolue avec vos bonnes et mauvaises réponses (modes jeu)
+- **Score en temps réel** qui évolue avec vos bonnes et mauvaises réponses
 - **Notation musicale authentique** : Noires professionnelles, lignes additionnelles correctes, symboles Bravura
+- **Interface épurée** : Layout optimisé, aucun chevauchement de texte
 - **Exécutables portables** pour Windows, Linux et macOS (aucune installation requise)
 
 ## 📋 Prérequis
@@ -135,7 +150,8 @@ python music_game.py
 ### Dans le jeu :
 
 1. **Menu principal** : Choisissez votre mode
-   - Cliquez sur un bouton ou appuyez sur 1, 2, 3 ou 4
+   - Cliquez sur un bouton ou appuyez sur 1, 2, 3, 4 ou 5
+   - **Option 5** : Statistiques - consultez vos performances
 
 2. **Mode Entraînement** :
    - Cliquez sur une note (Do à Si) pour la voir positionnée sur la portée et l'entendre
@@ -149,20 +165,31 @@ python music_game.py
    - Les 7 notes : Do (1), Ré (2), Mi (3), Fa (4), Sol (5), La (6), Si (7)
    - Répondez avant que le temps ne s'écoule !
    - Appuyez sur M pour activer/désactiver le son
+   - **Combo** : Enchaînez les bonnes réponses pour des points bonus !
+   - **High Score** : Essayez de battre votre meilleur score
 
-4. **Progression (modes jeu)** :
+4. **Écran Statistiques** :
+   - Consultez votre meilleur score
+   - Nombre de sessions jouées
+   - Taux de réussite global et par note
+   - Identifiez les notes à améliorer
+
+5. **Progression (modes jeu)** :
    - +10 points × niveau pour chaque bonne réponse
+   - **Bonus combo** : +2 points supplémentaires par niveau de combo au-dessus de 1
    - -5 points pour chaque erreur ou temps écoulé
    - Le niveau augmente tous les 50 points
    - Le temps de réponse diminue à chaque nouveau niveau
+   - Les combos se réinitialisent en cas d'erreur
 
 ## ⌨️ Commandes
 
 - **Touches 1-7** : Sélectionner une note (Do à Si)
 - **Touche 4** : Mode entraînement (depuis le menu)
+- **Touche 5** : Statistiques (depuis le menu)
 - **Clic souris** : Cliquer sur les boutons
 - **M** : Activer/Désactiver le son
-- **ESC** : Retour au menu (depuis le jeu/entraînement) ou quitter (depuis le menu)
+- **ESC** : Retour au menu (depuis le jeu/entraînement/stats) ou quitter (depuis le menu)
 
 ## 🎨 Captures d'écran
 
@@ -179,10 +206,19 @@ Le jeu affiche :
 - La clé actuelle (Sol 𝄞 ou Fa 𝄢) avec symboles musicaux professionnels
 - Notes rondes parfaitement dessinées avec lignes additionnelles correctes
 - Un système de score et niveau en temps réel (modes jeu)
+- **High score** : Votre meilleur score affiché en permanence
+- **Indicateur de combo** : Apparaît dès 2 bonnes réponses consécutives
 - Une barre de progression temporelle (modes jeu)
 - Sept boutons interactifs avec effet de survol (Do, Ré, Mi, Fa, Sol, La, Si)
 - Un indicateur visuel de l'état du son (ON/OFF)
 - Mode entraînement : interface épurée pour explorer les notes librement
+
+### Écran Statistiques
+Consultez vos performances détaillées :
+- Meilleur score absolu
+- Nombre de sessions jouées
+- Taux de réussite global
+- Statistiques par note avec code couleur (vert > 70%, jaune > 50%, rouge < 50%)
 
 ## 🛠️ Technologies utilisées
 
