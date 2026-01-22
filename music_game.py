@@ -287,13 +287,13 @@ class Note:
             # Ligne additionnelle
             pygame.draw.line(surface, NOIR, (self.x - 25, self.y), (self.x + 25, self.y), 2)
         
-        # Dessiner une blanche avec le caractère Bravura U+E1D4 (noteHalfUp)
-        # C'est une blanche complète (tête vide + tige) professionnelle
-        note_blanche = police_musicale.render('\U0000E1D4', True, NOIR)
-        rect_note = note_blanche.get_rect()
+        # Dessiner une noire avec le caractère Bravura U+E1D3 (noteQuarterUp)
+        # C'est une noire complète (tête remplie + tige) professionnelle
+        note_noire = police_musicale.render('\U0000E1D3', True, NOIR)
+        rect_note = note_noire.get_rect()
         rect_note.centery = self.y
         rect_note.centerx = self.x
-        surface.blit(note_blanche, rect_note)
+        surface.blit(note_noire, rect_note)
 
 class Jeu:
     def __init__(self, mode_cle='mixte'):
