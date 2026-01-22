@@ -6,6 +6,7 @@ import random      # Pour générer des nombres aléatoires (choix des notes)
 import sys         # Pour accéder aux fonctions système
 import os          # Pour gérer les chemins de fichiers
 import numpy as np # Pour les calculs mathématiques (génération de sons)
+import json        # Pour sauvegarder les scores et statistiques
 
 # ========================================
 # INITIALISATION DE PYGAME
@@ -34,6 +35,7 @@ VERT = (0, 200, 0)       # Vert pour les messages de succès
 ROUGE = (200, 0, 0)      # Rouge pour les erreurs
 BLEU = (50, 100, 200)    # Bleu pour les titres et boutons
 JAUNE = (255, 215, 0)    # Jaune pour les avertissements
+GRIS_FONCE = (100, 100, 100)  # Gris foncé pour les textes secondaires
 
 # ========================================
 # CONFIGURATION DE LA FENÊTRE
@@ -53,6 +55,7 @@ horloge = pygame.time.Clock()
 police_grande = pygame.font.Font(None, 72)  # Pour les titres
 police_moyenne = pygame.font.Font(None, 48) # Pour les sous-titres
 police_petite = pygame.font.Font(None, 36)  # Pour le texte normal
+police_mini = pygame.font.Font(None, 24)    # Pour les petites indications
 
 # Police musicale pour les clés
 try:
@@ -166,6 +169,47 @@ def generer_son(frequence, duree=0.5):
 # Pour chaque paire (nom, freq) dans FREQUENCIES_SOL et FREQUENCIES_FA, on crée un son
 SONS_NOTES_SOL = {nom: generer_son(freq) for nom, freq in FREQUENCIES_SOL.items()}
 SONS_NOTES_FA = {nom: generer_son(freq) for nom, freq in FREQUENCIES_FA.items()}
+
+# ========================================
+# GESTION DES DONNÉES (SCORES ET STATS)
+# ========================================
+# Déterminer le chemin du fichier de données (dans le même répertoire que l'exécutable)
+def get_data_path():
+    """Retourne le chemin du répertoire où stocker les données"""
+    try:
+        # PyInstaller crée un dossier temporaire et stocke le chemin dans _MEIPASS
+        # Mais on veut stocker les données de façon persistante là où se trouve l'exe
+        base_path = os.path.dirname(sys.executable)
+    except Exception:
+        base_path = os.path.abspath(".")
+    return base_path
+
+FICHIER_DONNEES = os.path.join(get_data_path(), 'music_game_data.json')
+
+def charger_donnees():
+    """Charge les scores et statistiques depuis le fichier JSON"""
+    try:
+        with open(FICHIER_DONNEES, 'r', encoding='utf-8') as f:
+            return json.load(f)
+    except (FileNotFoundError, json.JSONDecodeError):
+        # Si le fichier n'existe pas ou est corrompu, créer une structure par défaut
+        return {
+            'high_score': 0,
+            'stats': {
+                'total_notes': 0,
+                'notes_correctes': 0,
+                'sessions': 0,
+                'par_note': {note: {'tentatives': 0, 'reussites': 0} for note in NOTES}
+            }
+        }
+
+def sauvegarder_donnees(donnees):
+    """Sauvegarde les scores et statistiques dans le fichier JSON"""
+    try:
+        with open(FICHIER_DONNEES, 'w', encoding='utf-8') as f:
+            json.dump(donnees, f, indent=2, ensure_ascii=False)
+    except Exception as e:
+        print(f"Erreur lors de la sauvegarde: {e}")
 
 # ========================================
 # POSITIONS DES NOTES SUR LA PORTÉE
@@ -321,6 +365,15 @@ class Jeu:
         self.couleur_message = NOIR
         self.temps_message = 0
         self.son_active = True  # Son activé par défaut
+        
+        # Système de combo
+        self.combo = 0
+        self.meilleur_combo = 0
+        
+        # Charger les données sauvegardées
+        self.donnees = charger_donnees()
+        self.high_score = self.donnees['high_score']
+        
         self.boutons = self.creer_boutons()
         self.nouvelle_note()
     
@@ -373,24 +426,50 @@ class Jeu:
             texte_cle = police_musicale.render("\U0001D11E", True, NOIR)
             # Ajuster pour que la spirale centrale soit sur la ligne du Sol (y=335)
             surface.blit(texte_cle, (215, 170))
-            # Étiquette texte
+            # Étiquette texte entre la barre de temps et la portée
             texte_nom = police_moyenne.render("Sol", True, BLEU)
-            surface.blit(texte_nom, (210, 140))
+            surface.blit(texte_nom, (210, 220))
         else:
             # Clé de Fa: 𝄢 (U+1D122) - les deux points encadrent la ligne du Fa (4ème ligne)
             texte_cle = police_musicale.render("\U0001D122", True, NOIR)
             # Ajuster pour que les points soient autour de la ligne du Fa (y=320)
             surface.blit(texte_cle, (215, 145))
-            # Étiquette texte
+            # Étiquette texte entre la barre de temps et la portée
             texte_nom = police_moyenne.render("Fa", True, BLEU)
-            surface.blit(texte_nom, (210, 140))
+            surface.blit(texte_nom, (210, 220))
         
     def verifier_reponse(self, index_note):
         """Vérifie si la réponse est correcte"""
-        if NOTES[index_note] == self.note_actuelle.nom:
-            self.score += 10 * self.niveau
-            self.message = "Correct!"
-            self.couleur_message = VERT
+        nom_note = NOTES[index_note]
+        note_correcte = nom_note == self.note_actuelle.nom
+        
+        # Mettre à jour les statistiques
+        self.donnees['stats']['total_notes'] += 1
+        self.donnees['stats']['par_note'][self.note_actuelle.nom]['tentatives'] += 1
+        
+        if note_correcte:
+            # Bonne réponse
+            self.combo += 1
+            if self.combo > self.meilleur_combo:
+                self.meilleur_combo = self.combo
+            
+            # Calcul du score avec bonus de combo
+            points_base = 10 * self.niveau
+            bonus_combo = (self.combo - 1) * 2  # +2 points par combo au-dessus de 1
+            points_totaux = points_base + bonus_combo
+            self.score += points_totaux
+            
+            # Message avec combo
+            if self.combo >= 5:
+                self.message = f"Combo x{self.combo}! +{points_totaux} pts"
+                self.couleur_message = JAUNE
+            else:
+                self.message = "Correct!"
+                self.couleur_message = VERT
+            
+            # Mise à jour stats
+            self.donnees['stats']['notes_correctes'] += 1
+            self.donnees['stats']['par_note'][self.note_actuelle.nom]['reussites'] += 1
             
             # Augmenter le niveau tous les 5 bonnes réponses
             if self.score % 50 == 0:
@@ -401,12 +480,20 @@ class Jeu:
             
             self.nouvelle_note()
         else:
+            # Mauvaise réponse - perd le combo
+            self.combo = 0
             self.score = max(0, self.score - 5)
             self.message = f"Non! C'etait {self.note_actuelle.nom}"
             self.couleur_message = ROUGE
             self.nouvelle_note()
         
         self.temps_message = pygame.time.get_ticks()
+        
+        # Sauvegarder si nouveau high score
+        if self.score > self.high_score:
+            self.high_score = self.score
+            self.donnees['high_score'] = self.high_score
+            sauvegarder_donnees(self.donnees)
     
     def temps_ecoule(self):
         """Vérifie si le temps est écoulé"""
@@ -420,13 +507,23 @@ class Jeu:
         # Titre avec la clé actuelle
         cle_nom = "Sol" if self.cle_actuelle == 'sol' else "Fa"
         titre = police_moyenne.render(f"Notes de Musique - Clé de {cle_nom}", True, BLEU)
-        surface.blit(titre, (LARGEUR // 2 - titre.get_width() // 2, 30))
+        surface.blit(titre, (LARGEUR // 2 - titre.get_width() // 2, 20))
         
-        # Score et niveau
+        # Score et niveau à gauche
         texte_score = police_petite.render(f"Score: {self.score}", True, NOIR)
         texte_niveau = police_petite.render(f"Niveau: {self.niveau}", True, NOIR)
-        surface.blit(texte_score, (50, 30))
-        surface.blit(texte_niveau, (50, 70))
+        surface.blit(texte_score, (20, 70))
+        surface.blit(texte_niveau, (20, 100))
+        
+        # High score à droite
+        texte_high = police_petite.render(f"Best: {self.high_score}", True, BLEU)
+        surface.blit(texte_high, (LARGEUR - texte_high.get_width() - 20, 70))
+        
+        # Afficher le combo si >= 2 (en dessous du high score)
+        if self.combo >= 2:
+            couleur_combo = JAUNE if self.combo >= 5 else VERT
+            texte_combo = police_petite.render(f"Combo x{self.combo}!", True, couleur_combo)
+            surface.blit(texte_combo, (LARGEUR - texte_combo.get_width() - 20, 100))
         
         # Barre de temps (déplacée plus bas pour être visible)
         temps_restant = max(0, self.max_temps - (pygame.time.get_ticks() - self.temps_reponse))
@@ -435,8 +532,8 @@ class Jeu:
         couleur_barre = VERT if pourcentage > 0.5 else (JAUNE if pourcentage > 0.25 else ROUGE)
         
         # Position de la barre
-        barre_x = 50
-        barre_y = 120
+        barre_x = 20
+        barre_y = 180
         pygame.draw.rect(surface, couleur_barre, (barre_x, barre_y, largeur_barre, 20))
         pygame.draw.rect(surface, NOIR, (barre_x, barre_y, 200, 20), 2)
         
@@ -465,8 +562,8 @@ class Jeu:
             surface.blit(texte_msg, (LARGEUR // 2 - texte_msg.get_width() // 2, 520))
         
         # Instructions ESC et son
-        texte_esc = police_petite.render("ESC pour retour au menu", True, NOIR)
-        surface.blit(texte_esc, (10, HAUTEUR - 40))
+        texte_esc = police_mini.render("ESC pour quitter", True, GRIS_FONCE)
+        surface.blit(texte_esc, (10, HAUTEUR - 30))
         
         # Indicateur de son
         etat_son = "ON" if self.son_active else "OFF"
@@ -479,12 +576,14 @@ def ecran_accueil():
     en_attente = True
     mode_choisi = None
     
-    # Créer les boutons de sélection
-    bouton_sol = Bouton(200, 300, 150, 60, "Clé de Sol", 0)
-    bouton_fa = Bouton(400, 300, 150, 60, "Clé de Fa", 1)
-    bouton_mixte = Bouton(300, 380, 150, 60, "Les deux", 2)
-    bouton_entrainement = Bouton(250, 460, 250, 60, "Entraînement", 3)
-    boutons_menu = [bouton_sol, bouton_fa, bouton_mixte, bouton_entrainement]
+    # Créer les boutons de sélection (centrés sur l'écran)
+    centre_x = LARGEUR // 2
+    bouton_sol = Bouton(centre_x - 225, 260, 150, 60, "Clé de Sol", 0)
+    bouton_fa = Bouton(centre_x + 25, 260, 150, 60, "Clé de Fa", 1)
+    bouton_mixte = Bouton(centre_x - 75, 340, 150, 60, "Les deux", 2)
+    bouton_entrainement = Bouton(centre_x - 125, 420, 250, 60, "Entraînement", 3)
+    bouton_stats = Bouton(centre_x - 75, 500, 150, 50, "Statistiques", 4)
+    boutons_menu = [bouton_sol, bouton_fa, bouton_mixte, bouton_entrainement, bouton_stats]
     
     while en_attente:
         pos_souris = pygame.mouse.get_pos()
@@ -510,6 +609,9 @@ def ecran_accueil():
                     elif bouton_entrainement.verifier_clic(pos):
                         mode_choisi = 'entrainement'
                         en_attente = False
+                    elif bouton_stats.verifier_clic(pos):
+                        mode_choisi = 'stats'
+                        en_attente = False
             
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
@@ -526,12 +628,15 @@ def ecran_accueil():
                 elif event.key == pygame.K_4:
                     mode_choisi = 'entrainement'
                     en_attente = False
+                elif event.key == pygame.K_5:
+                    mode_choisi = 'stats'
+                    en_attente = False
         
         fenetre.fill(BLANC)
         
         # Titre
         titre = police_grande.render("Notes de Musique", True, BLEU)
-        fenetre.blit(titre, (LARGEUR // 2 - titre.get_width() // 2, 80))
+        fenetre.blit(titre, (LARGEUR // 2 - titre.get_width() // 2, 50))
         
         # Instructions
         instructions = [
@@ -540,23 +645,23 @@ def ecran_accueil():
             "Choisissez votre mode de jeu:",
         ]
         
-        y = 180
+        y = 130
         for ligne in instructions:
             texte = police_petite.render(ligne, True, NOIR)
             fenetre.blit(texte, (LARGEUR // 2 - texte.get_width() // 2, y))
-            y += 40
+            y += 35
         
         # Dessiner les boutons
         for bouton in boutons_menu:
             bouton.dessiner(fenetre)
         
         # Instructions clavier
-        texte_info = police_petite.render("Cliquez ou appuyez sur 1, 2, 3 ou 4", True, NOIR)
-        fenetre.blit(texte_info, (LARGEUR // 2 - texte_info.get_width() // 2, 540))
+        texte_info = police_petite.render("Cliquez ou appuyez sur 1, 2, 3, 4 ou 5", True, NOIR)
+        fenetre.blit(texte_info, (LARGEUR // 2 - texte_info.get_width() // 2, 580))
         
-        # Instruction ESC
-        texte_esc = police_petite.render("ESC pour quitter", True, NOIR)
-        fenetre.blit(texte_esc, (10, HAUTEUR - 40))
+        # Instruction ESC en bas à gauche
+        texte_esc = police_mini.render("ESC pour quitter", True, GRIS_FONCE)
+        fenetre.blit(texte_esc, (10, HAUTEUR - 30))
         
         pygame.display.flip()
         horloge.tick(FPS)
@@ -566,6 +671,7 @@ def ecran_accueil():
 def boucle_jeu(mode_cle='mixte'):
     """Boucle de jeu"""
     jeu = Jeu(mode_cle)
+    jeu.donnees['stats']['sessions'] += 1
     en_cours = True
     retour_menu = False
     
@@ -600,10 +706,13 @@ def boucle_jeu(mode_cle='mixte'):
         
         # Vérifier si le temps est écoulé
         if jeu.temps_ecoule():
+            jeu.combo = 0  # Perd le combo
             jeu.message = f"Temps écoulé! C'était {jeu.note_actuelle.nom}"
             jeu.couleur_message = ROUGE
             jeu.temps_message = pygame.time.get_ticks()
             jeu.score = max(0, jeu.score - 5)
+            jeu.donnees['stats']['total_notes'] += 1
+            jeu.donnees['stats']['par_note'][jeu.note_actuelle.nom]['tentatives'] += 1
             jeu.nouvelle_note()
         
         # Dessiner
@@ -612,6 +721,8 @@ def boucle_jeu(mode_cle='mixte'):
         pygame.display.flip()
         horloge.tick(FPS)
     
+    # Sauvegarder les données avant de quitter
+    sauvegarder_donnees(jeu.donnees)
     return False
 
 def mode_entrainement():
@@ -728,8 +839,86 @@ def mode_entrainement():
         fenetre.blit(texte_son, (LARGEUR - texte_son.get_width() - 10, HAUTEUR - 40))
         
         # Instruction ESC
-        texte_esc = police_petite.render("ESC pour revenir au menu", True, NOIR)
-        fenetre.blit(texte_esc, (10, HAUTEUR - 40))
+        texte_esc = police_mini.render("ESC pour quitter", True, GRIS_FONCE)
+        fenetre.blit(texte_esc, (10, HAUTEUR - 30))
+        
+        pygame.display.flip()
+        horloge.tick(FPS)
+    
+    return False
+
+def ecran_statistiques():
+    """Affiche l'écran des statistiques"""
+    donnees = charger_donnees()
+    stats = donnees['stats']
+    en_cours = True
+    
+    while en_cours:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                return False  # Quitter l'application
+            
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    return True  # Retour au menu
+        
+        # Dessiner
+        fenetre.fill(BLANC)
+        
+        # Titre
+        titre = police_grande.render("Statistiques", True, BLEU)
+        fenetre.blit(titre, (LARGEUR // 2 - titre.get_width() // 2, 15))
+        
+        # Ligne séparatrice
+        pygame.draw.line(fenetre, BLEU, (50, 75), (LARGEUR - 50, 75), 2)
+        
+        # Statistiques globales
+        y = 95
+        texte_high = police_moyenne.render(f"Meilleur score: {donnees['high_score']}", True, NOIR)
+        fenetre.blit(texte_high, (50, y))
+        y += 50
+        
+        texte_sessions = police_petite.render(f"Sessions jouées: {stats['sessions']}", True, NOIR)
+        fenetre.blit(texte_sessions, (50, y))
+        y += 40
+        
+        texte_total = police_petite.render(f"Notes jouées: {stats['total_notes']}", True, NOIR)
+        fenetre.blit(texte_total, (50, y))
+        y += 40
+        
+        if stats['total_notes'] > 0:
+            pourcentage = (stats['notes_correctes'] / stats['total_notes']) * 100
+            texte_taux = police_petite.render(f"Taux de réussite: {pourcentage:.1f}%", True, VERT if pourcentage >= 70 else ROUGE)
+            fenetre.blit(texte_taux, (50, y))
+        y += 60
+        
+        # Ligne séparatrice
+        pygame.draw.line(fenetre, BLEU, (50, y), (LARGEUR - 50, y), 2)
+        y += 25
+        
+        # Statistiques par note
+        texte_par_note = police_moyenne.render("Détail par note:", True, BLEU)
+        fenetre.blit(texte_par_note, (50, y))
+        y += 40
+        
+        for note in NOTES:
+            note_stats = stats['par_note'][note]
+            tentatives = note_stats['tentatives']
+            reussites = note_stats['reussites']
+            
+            if tentatives > 0:
+                taux = (reussites / tentatives) * 100
+                couleur = VERT if taux >= 70 else (JAUNE if taux >= 50 else ROUGE)
+                texte_note = police_petite.render(f"{note}: {reussites}/{tentatives} ({taux:.0f}%)", True, couleur)
+            else:
+                texte_note = police_petite.render(f"{note}: Pas encore jouée", True, NOIR)
+            
+            fenetre.blit(texte_note, (80, y))
+            y += 30
+        
+        # Instruction ESC
+        texte_esc = police_mini.render("ESC pour quitter", True, GRIS_FONCE)
+        fenetre.blit(texte_esc, (10, HAUTEUR - 30))
         
         pygame.display.flip()
         horloge.tick(FPS)
@@ -748,6 +937,9 @@ def boucle_principale():
         elif mode == 'entrainement':
             # Lancer le mode entraînement
             continuer = mode_entrainement()
+        elif mode == 'stats':
+            # Afficher les statistiques
+            continuer = ecran_statistiques()
         else:
             # Lancer le jeu et vérifier si on doit continuer
             continuer = boucle_jeu(mode)
