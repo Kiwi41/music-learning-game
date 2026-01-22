@@ -10,11 +10,13 @@ Un jeu éducatif interactif développé avec Pygame pour apprendre à reconnaît
 
 - **Deux clés musicales** : Clé de Sol et Clé de Fa avec symboles musicaux professionnels (police Bravura)
 - **Quatre modes de jeu** :
-  - Clé de Sol uniquement
-  - Clé de Fa uniquement
+  - Clé de Sol uniquement (octave 4)
+  - Clé de Fa uniquement (octave 2-3, sons plus graves)
   - Mode mixte (alternance aléatoire)
   - **Mode entraînement** : Explorez les notes à votre rythme sans timer ni score
-- **Sons réels des notes** : Génération synthétique des fréquences musicales (Do = 261.63 Hz, etc.)
+- **Sons réels des notes** : Génération synthétique avec fréquences authentiques
+  - Clé de Sol : Do4 (261.63 Hz) à Si4 (493.88 Hz)
+  - Clé de Fa : Sol2 (98 Hz) à Fa3 (174.61 Hz)
 - **Contrôle du son** : Activer/désactiver à tout moment avec la touche M
 - **Navigation fluide** : ESC retourne au menu depuis le jeu, quitte depuis le menu
 - **Système de niveaux progressifs** : La difficulté augmente au fur et à mesure (modes jeu)
@@ -22,7 +24,7 @@ Un jeu éducatif interactif développé avec Pygame pour apprendre à reconnaît
 - **Retour visuel immédiat** avec messages de feedback colorés
 - **Barre de temps dynamique** qui change de couleur selon l'urgence (modes jeu)
 - **Score** qui évolue avec vos bonnes et mauvaises réponses (modes jeu)
-- **Notation musicale authentique** : Notes rondes, lignes additionnelles correctes, symboles professionnels
+- **Notation musicale authentique** : Noires professionnelles, lignes additionnelles correctes, symboles Bravura
 - **Exécutables portables** pour Windows, Linux et macOS (aucune installation requise)
 
 ## 📋 Prérequis

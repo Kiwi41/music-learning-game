@@ -81,28 +81,30 @@ NOTES = ['Do', 'Ré', 'Mi', 'Fa', 'Sol', 'La', 'Si']
 # pygame.K_1 = touche "1" du clavier, etc.
 TOUCHES = [pygame.K_1, pygame.K_2, pygame.K_3, pygame.K_4, pygame.K_5, pygame.K_6, pygame.K_7]
 
-# Fréquences des notes en Hertz (vibrations par seconde) - octave 4
+# Fréquences des notes en Hertz (vibrations par seconde) - CLÉ DE SOL (octave 4)
 # Chaque note a une fréquence spécifique qui détermine sa hauteur
 # Par exemple, le La (A4) = 440 Hz est la note de référence internationale
 FREQUENCIES = {
-    'Do': 261.63,   # C4 - Note la plus grave de notre jeu
+    'Do': 261.63,   # C4 - Note la plus grave en clé de Sol
     'Ré': 293.66,   # D4
     'Mi': 329.63,   # E4
     'Fa': 349.23,   # F4
     'Sol': 392.00,  # G4
     'La': 440.00,   # A4 - Note de référence (diapason)
-    'Si': 493.88,   # B4 - Note la plus aiguë de notre jeu
+    'Si': 493.88,   # B4 - Note la plus aiguë en clé de Sol
 }
 
-# Fréquences pour la clé de Fa (octave plus grave - octave 2 et 3)
-# En clé de Fa, les notes vont de Sol (grave, en dessous) à Fa (aigu, en haut)
+# Fréquences pour la CLÉ DE FA (octave 2-3, une octave plus grave)
+# En clé de Fa, Sol est EN DESSOUS de la portée (plus grave) et Fa EN HAUT (plus aigu)
 FREQUENCIES_FA = {
-    'Sol': 98.00,   # G2 - Le plus grave, en dessous de la portée
-    'La': 110.00,   # A2
-    'Si': 123.47,   # B2
-    'Do': 130.81,   # C3
-    'Ré': 146.83,   # D3
-    'Mi': 164.81,   # E3
+    'Sol': 98.00,   # G2 - Le plus grave, en dessous de la portée avec ligne additionnelle
+    'La': 110.00,   # A2 - En dessous de la portée
+    'Si': 123.47,   # B2 - Sur la première ligne
+    'Do': 130.81,   # C3 - Entre 1ère et 2ème ligne
+    'Ré': 146.83,   # D3 - Sur la 2ème ligne
+    'Mi': 164.81,   # E3 - Entre 2ème et 3ème ligne
+    'Fa': 174.61,   # F3 - Le plus aigu, sur la 3ème ligne (en haut)
+}
     'Fa': 174.61,   # F3 - Le plus aigu, en haut de la portée
 }
 
