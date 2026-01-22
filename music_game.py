@@ -287,8 +287,18 @@ class Note:
             # Ligne additionnelle
             pygame.draw.line(surface, NOIR, (self.x - 25, self.y), (self.x + 25, self.y), 2)
         
-        # Dessiner la note (cercle parfait)
-        pygame.draw.circle(surface, NOIR, (self.x, self.y), self.rayon)
+        # Dessiner la note (ovale penché comme une vraie note de musique)
+        # Créer une surface temporaire pour dessiner l'ellipse puis la faire pivoter
+        taille_surf = 40
+        surf_note = pygame.Surface((taille_surf, taille_surf), pygame.SRCALPHA)
+        # Dessiner une ellipse horizontale (plus large que haute)
+        pygame.draw.ellipse(surf_note, NOIR, (5, 10, 30, 20))
+        # Faire pivoter l'ellipse de -20 degrés (penché vers la droite)
+        surf_note_rotated = pygame.transform.rotate(surf_note, -20)
+        # Centrer et dessiner la note pivotée
+        rect_note = surf_note_rotated.get_rect(center=(self.x, self.y))
+        surface.blit(surf_note_rotated, rect_note)
+        
         # Dessiner la tige
         pygame.draw.line(surface, NOIR, (self.x + self.rayon, self.y), (self.x + self.rayon, self.y - 50), 3)
 
