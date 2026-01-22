@@ -316,7 +316,7 @@ class Jeu:
         self.mode_cle = mode_cle  # 'sol', 'fa', ou 'mixte'
         self.cle_actuelle = 'sol'
         self.temps_reponse = 0
-        self.max_temps = 5000  # 5 secondes
+        self.max_temps = 10000  # 10 secondes
         self.message = ""
         self.couleur_message = NOIR
         self.temps_message = 0
