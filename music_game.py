@@ -287,17 +287,12 @@ class Note:
             # Ligne additionnelle
             pygame.draw.line(surface, NOIR, (self.x - 25, self.y), (self.x + 25, self.y), 2)
         
-        # Dessiner la note (ovale penché comme une vraie note de musique)
-        # Créer une surface temporaire pour dessiner l'ellipse puis la faire pivoter
-        taille_surf = 40
-        surf_note = pygame.Surface((taille_surf, taille_surf), pygame.SRCALPHA)
-        # Dessiner une ellipse horizontale (plus large que haute)
-        pygame.draw.ellipse(surf_note, NOIR, (5, 10, 30, 20))
-        # Faire pivoter l'ellipse de -20 degrés (penché vers la droite)
-        surf_note_rotated = pygame.transform.rotate(surf_note, -20)
-        # Centrer et dessiner la note pivotée
-        rect_note = surf_note_rotated.get_rect(center=(self.x, self.y))
-        surface.blit(surf_note_rotated, rect_note)
+        # Dessiner la tête de note avec le caractère Bravura U+E0A4 (noteheadBlack)
+        # C'est une vraie tête de noire avec l'ovale parfaitement penché
+        tete_note = police_musicale.render('\U0000E0A4', True, NOIR)
+        # Centrer la tête de note
+        rect_note = tete_note.get_rect(center=(self.x, self.y))
+        surface.blit(tete_note, rect_note)
         
         # Dessiner la tige
         pygame.draw.line(surface, NOIR, (self.x + self.rayon, self.y), (self.x + self.rayon, self.y - 50), 3)
