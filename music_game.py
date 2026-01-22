@@ -187,12 +187,32 @@ def get_data_path():
 FICHIER_DONNEES = os.path.join(get_data_path(), 'music_game_data.json')
 
 def charger_donnees():
-    """Charge les scores et statistiques depuis le fichier JSON"""
+    """
+    Charge les scores et statistiques depuis le fichier JSON.
+    
+    Structure des données:
+    {
+        'high_score': int - Meilleur score de tous les temps
+        'stats': {
+            'total_notes': int - Nombre total de notes jouées
+            'notes_correctes': int - Nombre de bonnes réponses
+            'sessions': int - Nombre de parties jouées
+            'par_note': {
+                'Do': {'tentatives': int, 'reussites': int},
+                'Ré': {'tentatives': int, 'reussites': int},
+                ... (pour chaque note)
+            }
+        }
+    }
+    
+    Retourne:
+        dict: Les données chargées ou une structure par défaut si le fichier n'existe pas
+    """
     try:
         with open(FICHIER_DONNEES, 'r', encoding='utf-8') as f:
             return json.load(f)
     except (FileNotFoundError, json.JSONDecodeError):
-        # Si le fichier n'existe pas ou est corrompu, créer une structure par défaut
+        # Première utilisation ou fichier corrompu: créer une structure vierge
         return {
             'high_score': 0,
             'stats': {
@@ -204,11 +224,21 @@ def charger_donnees():
         }
 
 def sauvegarder_donnees(donnees):
-    """Sauvegarde les scores et statistiques dans le fichier JSON"""
+    """
+    Sauvegarde les scores et statistiques dans le fichier JSON.
+    
+    Le fichier est créé dans le même répertoire que l'exécutable (mode portable).
+    Les données sont formatées avec indent=2 pour être lisibles par un humain.
+    
+    Paramètre:
+        donnees: Dictionnaire contenant high_score et stats à sauvegarder
+    """
     try:
         with open(FICHIER_DONNEES, 'w', encoding='utf-8') as f:
+            # indent=2: format lisible, ensure_ascii=False: garde les accents
             json.dump(donnees, f, indent=2, ensure_ascii=False)
     except Exception as e:
+        # En cas d'erreur (permissions, disque plein...), afficher le message
         print(f"Erreur lors de la sauvegarde: {e}")
 
 # ========================================
@@ -353,26 +383,38 @@ class Note:
         surface.blit(note_noire, rect_note)
 
 class Jeu:
+    """
+    Classe principale du jeu qui gère la logique, le score, les combos et les statistiques.
+    
+    Attributs:
+        score: Score actuel de la partie
+        niveau: Niveau de difficulté actuel (augmente avec le score)
+        combo: Nombre de bonnes réponses consécutives
+        high_score: Meilleur score enregistré
+        donnees: Dictionnaire contenant toutes les statistiques sauvegardées
+    """
     def __init__(self, mode_cle='mixte'):
+        # Variables de jeu de base
         self.score = 0
         self.niveau = 1
         self.note_actuelle = None
         self.mode_cle = mode_cle  # 'sol', 'fa', ou 'mixte'
         self.cle_actuelle = 'sol'
         self.temps_reponse = 0
-        self.max_temps = 10000  # 10 secondes
+        self.max_temps = 10000  # 10 secondes au niveau 1
         self.message = ""
         self.couleur_message = NOIR
         self.temps_message = 0
         self.son_active = True  # Son activé par défaut
         
-        # Système de combo
-        self.combo = 0
-        self.meilleur_combo = 0
+        # Système de combo: récompense les séries de bonnes réponses
+        # Le combo augmente à chaque bonne réponse et se réinitialise à 0 en cas d'erreur
+        self.combo = 0  # Combo actuel
+        self.meilleur_combo = 0  # Meilleur combo de cette session
         
-        # Charger les données sauvegardées
-        self.donnees = charger_donnees()
-        self.high_score = self.donnees['high_score']
+        # Charger les données sauvegardées (high score et statistiques)
+        self.donnees = charger_donnees()  # Charge depuis le fichier JSON
+        self.high_score = self.donnees['high_score']  # Meilleur score de tous les temps
         
         self.boutons = self.creer_boutons()
         self.nouvelle_note()
@@ -439,23 +481,35 @@ class Jeu:
             surface.blit(texte_nom, (210, 220))
         
     def verifier_reponse(self, index_note):
-        """Vérifie si la réponse est correcte"""
+        """
+        Vérifie si la réponse du joueur est correcte et met à jour le score, combo et statistiques.
+        
+        Le système de points fonctionne ainsi:
+        - Points de base = 10 × niveau actuel
+        - Bonus combo = (combo - 1) × 2 points supplémentaires
+        - Exemple: au niveau 2 avec un combo de 3: 10×2 + (3-1)×2 = 20 + 4 = 24 points
+        
+        Paramètre:
+            index_note: L'index de la note choisie (0-6 pour Do-Si)
+        """
         nom_note = NOTES[index_note]
         note_correcte = nom_note == self.note_actuelle.nom
         
-        # Mettre à jour les statistiques
+        # Mettre à jour les statistiques globales pour chaque tentative
         self.donnees['stats']['total_notes'] += 1
         self.donnees['stats']['par_note'][self.note_actuelle.nom]['tentatives'] += 1
         
         if note_correcte:
-            # Bonne réponse
+            # === BONNE RÉPONSE ===
+            
+            # Incrémenter le combo (série de bonnes réponses)
             self.combo += 1
             if self.combo > self.meilleur_combo:
-                self.meilleur_combo = self.combo
+                self.meilleur_combo = self.combo  # Enregistrer le meilleur combo de la session
             
-            # Calcul du score avec bonus de combo
-            points_base = 10 * self.niveau
-            bonus_combo = (self.combo - 1) * 2  # +2 points par combo au-dessus de 1
+            # Calcul du score avec système de bonus progressif
+            points_base = 10 * self.niveau  # Plus on avance, plus chaque note rapporte
+            bonus_combo = (self.combo - 1) * 2  # +2 points par niveau de combo (0 pour le 1er)
             points_totaux = points_base + bonus_combo
             self.score += points_totaux
             
@@ -489,11 +543,12 @@ class Jeu:
         
         self.temps_message = pygame.time.get_ticks()
         
-        # Sauvegarder si nouveau high score
+        # Sauvegarder immédiatement si un nouveau record est atteint
+        # Cela garantit que le high score n'est pas perdu si le jeu se ferme brusquement
         if self.score > self.high_score:
             self.high_score = self.score
             self.donnees['high_score'] = self.high_score
-            sauvegarder_donnees(self.donnees)
+            sauvegarder_donnees(self.donnees)  # Écriture dans le fichier JSON
     
     def temps_ecoule(self):
         """Vérifie si le temps est écoulé"""
