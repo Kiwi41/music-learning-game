@@ -11,8 +11,8 @@ Un jeu éducatif interactif développé avec Pygame pour apprendre à reconnaît
 ### Modes de Jeu
 - **Deux clés musicales** : Clé de Sol et Clé de Fa avec symboles musicaux professionnels (police Bravura)
 - **Quatre modes de jeu** :
-  - Clé de Sol uniquement (octave 4)
-  - Clé de Fa uniquement (octave 2-3, sons plus graves)
+  - Clé de Sol uniquement (octave 4, Do à Si)
+  - Clé de Fa uniquement (octaves 3-4, Do central identique à la clé de Sol)
   - Mode mixte (alternance aléatoire)
   - **Mode entraînement** : Explorez les notes à votre rythme sans timer ni score
 
@@ -29,7 +29,7 @@ Un jeu éducatif interactif développé avec Pygame pour apprendre à reconnaît
 ### Audio & Interactivité
 - **Sons réels des notes** : Génération synthétique avec fréquences authentiques
   - Clé de Sol : Do4 (261.63 Hz) à Si4 (493.88 Hz)
-  - Clé de Fa : Sol2 (98 Hz) à Fa3 (174.61 Hz)
+  - Clé de Fa : Do4 (261.6 Hz) identique à la clé de Sol, gamme cohérente de Sol3 à Fa3
 - **Contrôle du son** : Activer/désactiver à tout moment avec la touche M
 - **Interaction multiple** : Cliquez sur les boutons ou utilisez les touches 1-7
 
@@ -38,7 +38,11 @@ Un jeu éducatif interactif développé avec Pygame pour apprendre à reconnaît
 - **Retour visuel immédiat** avec messages de feedback colorés
 - **Barre de temps dynamique** qui change de couleur selon l'urgence (modes jeu)
 - **Score en temps réel** qui évolue avec vos bonnes et mauvaises réponses
-- **Notation musicale authentique** : Noires professionnelles, lignes additionnelles correctes, symboles Bravura
+- **Notation musicale authentique** : 
+  - Noires professionnelles avec police Bravura (taille optimisée 55px)
+  - Lignes additionnelles correctes (Do en dessous pour clé de Sol, Do au-dessus pour clé de Fa)
+  - Symboles de clés précisément positionnés
+  - Positionnement exact des notes sur la portée
 - **Interface épurée** : Layout optimisé, aucun chevauchement de texte
 - **Exécutables portables** pour Windows, Linux et macOS (aucune installation requise)
 
@@ -224,10 +228,11 @@ Consultez vos performances détaillées :
 
 - **Python 3** : Langage de programmation
 - **Pygame** : Bibliothèque de jeu 2D
-- **NumPy** : Génération synthétique des sons musicaux
+- **NumPy** : Génération synthétique des sons musicaux avec enveloppe ADSR
 - **PyInstaller** : Création d'exécutables portables
 - **GitHub Actions** : Build automatique multi-plateforme (CI/CD)
 - **Police Bravura** : Symboles musicaux professionnels (Steinberg)
+- **Pytest** : Tests unitaires automatisés (36 tests, couverture 34%)
 
 ## 📝 Licence
 

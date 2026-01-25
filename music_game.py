@@ -68,7 +68,7 @@ try:
             base_path = os.path.abspath(".")
         return os.path.join(base_path, relative_path)
     
-    police_musicale = pygame.font.Font(resource_path("Bravura.otf"), 80)
+    police_musicale = pygame.font.Font(resource_path("Bravura.otf"), 55)
 except Exception as e:
     # Fallback si la police n'est pas trouvée
     print(f"Avertissement: impossible de charger la police Bravura.otf - {e}")
@@ -97,16 +97,18 @@ FREQUENCIES_SOL = {
     'Si': 493.88,   # B4 - Note la plus aiguë en clé de Sol
 }
 
-# Fréquences pour la CLÉ DE FA (octave 2-3, une octave plus grave)
-# En clé de Fa, Sol est EN DESSOUS de la portée (plus grave) et Fa EN HAUT (plus aigu)
+# Fréquences pour la CLÉ DE FA (octave 3-4, gamme mixte)
+# En clé de Fa, le Do est identique à la clé de Sol (C4 = 261.6 Hz)
+# Les notes Sol, La, Si sont en dessous (octave 3)
+# Les notes Ré, Mi, Fa sont également en octave 3, formant une gamme cohérente
 FREQUENCIES_FA = {
-    'Sol': 98.00,   # G2 - Le plus grave, en dessous de la portée avec ligne additionnelle
-    'La': 110.00,   # A2 - En dessous de la portée
-    'Si': 123.47,   # B2 - Sur la première ligne
-    'Do': 130.81,   # C3 - Entre 1ère et 2ème ligne
+    'Sol': 196.00,   # G3 - Le plus grave, en dessous de la portée avec ligne additionnelle
+    'La': 220.00,   # A3 - En dessous de la portée
+    'Si': 246.94,   # B3 - Sur la première ligne
+    'Do': 261.6,    # C4 - Même fréquence qu'en clé de Sol (au-dessus avec ligne additionnelle)
     'Ré': 146.83,   # D3 - Sur la 2ème ligne
     'Mi': 164.81,   # E3 - Entre 2ème et 3ème ligne
-    'Fa': 174.61,   # F3 - Le plus aigu, sur la 3ème ligne (en haut)
+    'Fa': 174.61,   # F3 - Sur la 3ème ligne (en haut)
 }
 
 def generer_son(frequence, duree=0.5):
@@ -249,25 +251,25 @@ def sauvegarder_donnees(donnees):
 
 # Positions pour la clé de SOL (clé de Sol)
 POSITIONS_NOTES_SOL = {
-    'Do': 380,   # En dessous de la portée (ligne additionnelle)
-    'Ré': 365,   # Juste en dessous de la portée
-    'Mi': 350,   # Sur la première ligne (du bas)
-    'Fa': 335,   # Entre la 1ère et 2ème ligne
-    'Sol': 320,  # Sur la 2ème ligne
-    'La': 305,   # Entre la 2ème et 3ème ligne
-    'Si': 290,   # Sur la 3ème ligne (en haut de la portée)
+    'Do': 370,   # En dessous de la portée (ligne additionnelle)
+    'Ré': 360,   # Juste en dessous de la portée
+    'Mi': 351,   # Sur la première ligne (du bas)
+    'Fa': 343,   # Entre la 1ère et 2ème ligne
+    'Sol': 336,  # Sur la 2ème ligne
+    'La': 329,   # Entre la 2ème et 3ème ligne
+    'Si': 321,   # Sur la 3ème ligne (en haut de la portée)
 }
 
 # Positions pour la clé de FA (clé de Fa)
 # Les notes sont différemment placées en clé de Fa
 POSITIONS_NOTES_FA = {
-    'Sol': 380,  # En dessous de la portée (ligne additionnelle)
-    'La': 365,   # Juste en dessous de la portée
-    'Si': 350,   # Sur la première ligne
-    'Do': 335,   # Entre la 1ère et 2ème ligne
-    'Ré': 320,   # Sur la 2ème ligne
-    'Mi': 305,   # Entre la 2ème et 3ème ligne
-    'Fa': 290,   # Sur la 3ème ligne
+    'Sol': 299,  # En dessous de la portée (ligne additionnelle)
+    'La': 291,   # Juste en dessous de la portée
+    'Si': 283,   # Sur la première ligne
+    'Do': 270,   # Entre la 1ère et 2ème ligne
+    'Ré': 321,   # Sur la 2ème ligne
+    'Mi': 313,   # Entre la 2ème et 3ème ligne
+    'Fa': 306,   # Sur la 3ème ligne
 }
 
 # ========================================
@@ -367,12 +369,14 @@ class Note:
         
     def dessiner(self, surface):
         # Dessiner une ligne additionnelle si la note est en dehors de la portée
-        # En clé de Sol: seul le Do (380) nécessite une ligne
-        # En clé de Fa: seul le Sol (380) nécessite une ligne
-        # Le Ré (365) en Sol et La (365) en Fa sont entre les lignes, pas de ligne additionnelle
-        if self.y >= 380:  # Note vraiment en dessous de la portée
-            # Ligne additionnelle
-            pygame.draw.line(surface, NOIR, (self.x - 25, self.y), (self.x + 25, self.y), 2)
+        # En clé de Sol: seul le Do (370) nécessite une ligne en dessous
+        # En clé de Fa: le Sol nécessite une ligne en dessous, le Do une ligne au-dessus
+        if self.y >= 370:  # Note en dessous de la portée
+            # Ligne additionnelle en dessous
+            pygame.draw.line(surface, NOIR, (self.x - 17, self.y), (self.x + 17, self.y), 2)
+        elif self.y <= 270:  # Note au-dessus de la portée (Do en clé de Fa à y=270)
+            # Ligne additionnelle au-dessus
+            pygame.draw.line(surface, NOIR, (self.x - 17, self.y), (self.x + 17, self.y), 2)
         
         # Dessiner une noire avec le caractère Bravura U+E1D3 (noteQuarterUp)
         # C'est une noire complète (tête remplie + tige) professionnelle
@@ -467,7 +471,7 @@ class Jeu:
             # Clé de Sol: 𝄞 (U+1D11E) - s'enroule autour de la ligne du Sol (2ème ligne du bas)
             texte_cle = police_musicale.render("\U0001D11E", True, NOIR)
             # Ajuster pour que la spirale centrale soit sur la ligne du Sol (y=335)
-            surface.blit(texte_cle, (215, 170))
+            surface.blit(texte_cle, (215, 225))
             # Étiquette texte entre la barre de temps et la portée
             texte_nom = police_moyenne.render("Sol", True, BLEU)
             surface.blit(texte_nom, (210, 220))
@@ -475,7 +479,7 @@ class Jeu:
             # Clé de Fa: 𝄢 (U+1D122) - les deux points encadrent la ligne du Fa (4ème ligne)
             texte_cle = police_musicale.render("\U0001D122", True, NOIR)
             # Ajuster pour que les points soient autour de la ligne du Fa (y=320)
-            surface.blit(texte_cle, (215, 145))
+            surface.blit(texte_cle, (215, 195))
             # Étiquette texte entre la barre de temps et la portée
             texte_nom = police_moyenne.render("Fa", True, BLEU)
             surface.blit(texte_nom, (210, 220))
@@ -851,7 +855,7 @@ def mode_entrainement():
         
         # Sous-titre (nom de la clé)
         sous_titre = police_moyenne.render(f"Clé de {cle_actuelle.capitalize()}", True, BLEU)
-        fenetre.blit(sous_titre, (LARGEUR // 2 - sous_titre.get_width() // 2, 220))
+        fenetre.blit(sous_titre, (LARGEUR // 2 - sous_titre.get_width() // 2, 170))
         
         # Instructions
         instruction = police_petite.render("Cliquez sur une note pour la voir et l'entendre", True, NOIR)
@@ -867,12 +871,12 @@ def mode_entrainement():
         # Dessiner la clé
         if cle_actuelle == 'sol':
             texte_cle = police_musicale.render("\U0001D11E", True, NOIR)
-            fenetre.blit(texte_cle, (215, 170))
+            fenetre.blit(texte_cle, (215, 225))
             texte_nom = police_moyenne.render("Sol", True, BLEU)
             fenetre.blit(texte_nom, (210, 140))
         else:
             texte_cle = police_musicale.render("\U0001D122", True, NOIR)
-            fenetre.blit(texte_cle, (215, 145))
+            fenetre.blit(texte_cle, (215, 195))
             texte_nom = police_moyenne.render("Fa", True, BLEU)
             fenetre.blit(texte_nom, (210, 140))
         
